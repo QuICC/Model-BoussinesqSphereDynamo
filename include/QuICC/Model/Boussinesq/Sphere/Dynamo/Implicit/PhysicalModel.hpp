@@ -1,11 +1,11 @@
 /** 
  * @file PhysicalModel.hpp
- * @brief Implementation of the Boussinesq thermal convection dynamo in a sphere model (Toroidal/Poloidal formulation) without coupled solve (standard implementation)
+ * @brief Implementation of the Boussinesq rotating thermal dynamo in a sphere (Toroidal/Poloidal formulation)
  * @author Philippe Marti \<philippe.marti@colorado.edu\>
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_PHYSICALMODEL_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_PHYSICALMODEL_HPP
 
 // Model version number
 #define QUICC_MODEL_VERSION_MAJOR 0
@@ -24,10 +24,10 @@
 
 // Project includes
 //
-#include "Simulation/Simulation.hpp"
-#include "Generator/StateGenerator.hpp"
-#include "Generator/VisualizationGenerator.hpp"
-#include "SpatialSchemes/3D/WLFlScheme.hpp"
+#include "QuICC/Simulation/Simulation.hpp"
+#include "QuICC/Generator/StateGenerator.hpp"
+#include "QuICC/Generator/VisualizationGenerator.hpp"
+#include "QuICC/SpatialSchemes/3D/WLFmScheme.hpp"
 
 // THIS IS NOT A COMMENT BUT AND OPTION READ BY CMAKE
 // QUICC_SPATIALSCHEME_FORMULATION = TORPOL;
@@ -42,10 +42,10 @@ namespace Sphere {
 
 namespace Dynamo {
 
-namespace Explicit {
+namespace Implicit {
 
    /**
-    * @brief Implementation of the Boussinesq thermal convection dynamo in a sphere model (Toroidal/Poloidal formulation) without coupled solve (standard implementation)
+    * @brief Implementation of the Boussinesq rotating thermal dynamo sphere model (Toroidal/Poloidal formulation)
     */
    class PhysicalModel
    {
@@ -60,7 +60,7 @@ namespace Explicit {
          static const std::string PYCLASS;
 
          /// Typedef for the spatial scheme used
-         typedef Schemes::WLFlScheme SchemeType;
+         typedef Schemes::WLFmScheme SchemeType;
 
          /**
           * @brief Add the required equations
@@ -139,4 +139,14 @@ namespace Explicit {
 }
 }
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
+// 
+// Block compilation of unusable parallelisation algorithms
+//
+#ifdef QUICC_MPIALGO_SINGLE1D
+#error "The SINGLE1D parallelisation is not supported!" 
+#endif //QUICC_MPIALGO_SINGLE1D
+#if defined QUICC_MPIALGO_TUBULAR && !defined QUICC_SPLINALG_MUMPS && !defined QUICC_MPISPSOLVE
+#error "The TUBULAR parallelisation is not supported!" 
+#endif //defined QUICC_MPIALGO_TUBULAR && !defined QUICC_SPLINALG_MUMPS && !defined QUICC_MPISPSOLVE
+
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_PHYSICALMODEL_HPP

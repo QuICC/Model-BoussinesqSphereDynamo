@@ -6,7 +6,7 @@
 
 // Configuration includes
 //
-#include "TypeSelectors/TransformSelector.hpp"
+#include "QuICC/TypeSelectors/TransformSelector.hpp"
 
 // System includes
 //
@@ -16,15 +16,15 @@
 
 // Class include
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 
 // Project includes
 //
-#include "Base/Typedefs.hpp"
-#include "Base/MathConstants.hpp"
-#include "Enums/NonDimensional.hpp"
-#include "PhysicalOperators/Cross.hpp"
-#include "PhysicalOperators/SphericalCoriolis.hpp"
+#include "QuICC/Base/Typedefs.hpp"
+#include "QuICC/Base/MathConstants.hpp"
+#include "QuICC/Enums/NonDimensional.hpp"
+#include "QuICC/PhysicalOperators/Cross.hpp"
+#include "QuICC/PhysicalOperators/SphericalCoriolis.hpp"
 
 namespace QuICC {
 

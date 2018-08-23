@@ -1,11 +1,11 @@
 /**
- * @file Momentum.hpp
- * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq thermal convection dynamo sphere
+ * @file Induction.hpp
+ * @brief Implementation of the vector induction equation for the Boussinesq thermal convection dynamo sphere
  * @author Philippe Marti \<philippe.marti@colorado.edu\>
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP
 
 // Configuration includes
 //
@@ -18,9 +18,9 @@
 
 // Project includes
 //
-#include "Base/Typedefs.hpp"
-#include "TypeSelectors/ScalarSelector.hpp"
-#include "Equations/IVectorEquation.hpp"
+#include "QuICC/Base/Typedefs.hpp"
+#include "QuICC/TypeSelectors/ScalarSelector.hpp"
+#include "QuICC/Equations/IVectorEquation.hpp"
 
 namespace QuICC {
 
@@ -33,9 +33,9 @@ namespace Sphere {
 namespace Dynamo {
 
    /**
-    * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq thermal convection dynamo in a sphere
+    * @brief Implementation of the vector induction equation for the Boussinesq thermal convection dynamo in a sphere
     */
-   class Momentum: public IVectorEquation
+   class Induction: public IVectorEquation
    {
       public:
          /**
@@ -43,12 +43,12 @@ namespace Dynamo {
           *
           * @param spEqParams  Shared equation parameters
           */
-         Momentum(SharedEquationParameters spEqParams);
+         Induction(SharedEquationParameters spEqParams);
 
          /**
           * @brief Simple empty destructor
           */
-         virtual ~Momentum();
+         virtual ~Induction();
 
          /**
           * @brief Compute the nonlinear interaction term
@@ -74,16 +74,6 @@ namespace Dynamo {
           */
          virtual void setNLComponents();
 
-         /**
-          * @brief Storage for the cos(theta) grid values (if required)
-          */
-         Array mCosTheta;
-
-         /**
-          * @brief Storage for the sin(theta) grid values (if required)
-          */
-         Array mSinTheta;
-
       private:
    };
 
@@ -93,4 +83,4 @@ namespace Dynamo {
 }
 }
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP

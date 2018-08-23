@@ -1,11 +1,11 @@
 /**
- * @file Induction.hpp
- * @brief Implementation of the vector induction equation for the Boussinesq thermal convection dynamo sphere
+ * @file Transport.hpp
+ * @brief Implementation of the transport equation for the Boussinesq thermal convection dynamo in a sphere
  * @author Philippe Marti \<philippe.marti@colorado.edu\>
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
 
 // Configuration includes
 //
@@ -18,9 +18,9 @@
 
 // Project includes
 //
-#include "Base/Typedefs.hpp"
-#include "TypeSelectors/ScalarSelector.hpp"
-#include "Equations/IVectorEquation.hpp"
+#include "QuICC/Base/Typedefs.hpp"
+#include "QuICC/TypeSelectors/ScalarSelector.hpp"
+#include "QuICC/Equations/IScalarEquation.hpp"
 
 namespace QuICC {
 
@@ -33,9 +33,9 @@ namespace Sphere {
 namespace Dynamo {
 
    /**
-    * @brief Implementation of the vector induction equation for the Boussinesq thermal convection dynamo in a sphere
+    * @brief Implementation of the transport equation for the Boussinesq thermal convection dynamo in a sphere 
     */
-   class Induction: public IVectorEquation
+   class Transport: public IScalarEquation
    {
       public:
          /**
@@ -43,12 +43,12 @@ namespace Dynamo {
           *
           * @param spEqParams  Shared equation parameters
           */
-         Induction(SharedEquationParameters spEqParams);
+         Transport(SharedEquationParameters spEqParams);
 
          /**
           * @brief Simple empty destructor
           */
-         virtual ~Induction();
+         virtual ~Transport();
 
          /**
           * @brief Compute the nonlinear interaction term
@@ -69,11 +69,6 @@ namespace Dynamo {
           */
          virtual void setCoupling();
 
-         /**
-          * @brief Set the nonlinear integration components
-          */
-         virtual void setNLComponents();
-
       private:
    };
 
@@ -83,4 +78,4 @@ namespace Dynamo {
 }
 }
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_INDUCTION_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
