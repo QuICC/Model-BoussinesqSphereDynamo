@@ -9,7 +9,7 @@
 
 // Model version number
 #define QUICC_MODEL_VERSION_MAJOR 0
-#define QUICC_MODEL_VERSION_MINOR 103
+#define QUICC_MODEL_VERSION_MINOR 104
 #define QUICC_MODEL_VERSION_PATCH 0
 
 // Configuration includes
