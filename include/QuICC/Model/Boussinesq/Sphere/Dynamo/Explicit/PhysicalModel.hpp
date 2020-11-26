@@ -24,10 +24,10 @@
 
 // Project includes
 //
-#include "QuICC/Simulation/Simulation.hpp"
-#include "QuICC/Generator/StateGenerator.hpp"
-#include "QuICC/Generator/VisualizationGenerator.hpp"
-#include "QuICC/SpatialSchemes/3D/WLFlScheme.hpp"
+#include "Simulation/Simulation.hpp"
+#include "Generator/StateGenerator.hpp"
+#include "Generator/VisualizationGenerator.hpp"
+#include "SpatialSchemes/3D/WLFlScheme.hpp"
 
 // THIS IS NOT A COMMENT BUT AND OPTION READ BY CMAKE
 // QUICC_SPATIALSCHEME_FORMULATION = TORPOL;

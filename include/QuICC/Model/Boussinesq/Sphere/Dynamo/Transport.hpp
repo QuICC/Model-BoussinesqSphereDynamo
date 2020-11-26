@@ -18,9 +18,9 @@
 
 // Project includes
 //
-#include "QuICC/Base/Typedefs.hpp"
-#include "QuICC/TypeSelectors/ScalarSelector.hpp"
-#include "QuICC/Equations/IScalarEquation.hpp"
+#include "Base/Typedefs.hpp"
+#include "TypeSelectors/ScalarSelector.hpp"
+#include "Equations/IScalarEquation.hpp"
 
 namespace QuICC {
 

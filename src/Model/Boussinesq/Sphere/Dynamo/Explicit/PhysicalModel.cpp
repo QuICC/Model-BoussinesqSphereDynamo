@@ -15,28 +15,32 @@
 
 // Class include
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/PhysicalModel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Explicit/PhysicalModel.hpp"
 
 // Project includes
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
-#include "QuICC/Enums/FieldIds.hpp"
-#include "QuICC/IoVariable/StateFileReader.hpp"
-#include "QuICC/IoVariable/StateFileWriter.hpp"
-#include "QuICC/IoVariable/VisualizationFileWriter.hpp"
-#include "QuICC/IoTools/IdToHuman.hpp"
-#include "QuICC/IoVariable/SphereScalarEnergyWriter.hpp"
-#include "QuICC/IoVariable/SphereTorPolEnergyWriter.hpp"
-#include "QuICC/Generator/States/RandomScalarState.hpp"
-#include "QuICC/Generator/States/RandomVectorState.hpp"
-#include "QuICC/Generator/States/SphereExactStateIds.hpp"
-#include "QuICC/Generator/States/SphereExactScalarState.hpp"
-#include "QuICC/Generator/States/SphereExactVectorState.hpp"
-#include "QuICC/Generator/Visualizers/ScalarFieldVisualizer.hpp"
-#include "QuICC/Generator/Visualizers/VectorFieldVisualizer.hpp"
-#include "QuICC/Model/PhysicalModelBase.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
+#include "Enums/FieldIds.hpp"
+#include "IoVariable/StateFileReader.hpp"
+#include "IoVariable/StateFileWriter.hpp"
+#include "IoVariable/VisualizationFileWriter.hpp"
+#include "IoTools/IdToHuman.hpp"
+#include "IoVariable/SphereScalarEnergyWriter.hpp"
+#include "IoVariable/SphereScalarLSpectrumWriter.hpp"
+#include "IoVariable/SphereScalarMSpectrumWriter.hpp"
+#include "IoVariable/SphereTorPolEnergyWriter.hpp"
+#include "IoVariable/SphereTorPolLSpectrumWriter.hpp"
+#include "IoVariable/SphereTorPolMSpectrumWriter.hpp"
+#include "Generator/States/RandomScalarState.hpp"
+#include "Generator/States/RandomVectorState.hpp"
+#include "Generator/States/SphereExactStateIds.hpp"
+#include "Generator/States/SphereExactScalarState.hpp"
+#include "Generator/States/SphereExactVectorState.hpp"
+#include "Generator/Visualizers/ScalarFieldVisualizer.hpp"
+#include "Generator/Visualizers/VectorFieldVisualizer.hpp"
+#include "Model/PhysicalModelBase.hpp"
 
 namespace QuICC {
 
@@ -50,9 +54,9 @@ namespace Dynamo {
 
 namespace Explicit {
 
-   const std::string PhysicalModel::PYMODULE = "boussinesq_dynamosphere_std";
+   const std::string PhysicalModel::PYMODULE = "boussinesq.sphere.dynamo.physical_model";
 
-   const std::string PhysicalModel::PYCLASS = "BoussinesqDynamoSphereStd";
+   const std::string PhysicalModel::PYCLASS = "PhysicalModel";
 
    void PhysicalModel::addEquations(SharedSimulation spSim)
    {
@@ -258,19 +262,59 @@ namespace Explicit {
    void PhysicalModel::addAsciiOutputFiles(SharedSimulation spSim)
    {
       // Create temperature energy writer
-      IoVariable::SharedSphereScalarEnergyWriter spScalar(new IoVariable::SphereScalarEnergyWriter("temperature", SchemeType::type()));
-      spScalar->expect(PhysicalNames::TEMPERATURE);
-      spSim->addAsciiOutputFile(spScalar);
+      IoVariable::SharedSphereScalarEnergyWriter spTemp(new IoVariable::SphereScalarEnergyWriter("temperature", SchemeType::type()));
+      spTemp->expect(PhysicalNames::TEMPERATURE);
+      spSim->addAsciiOutputFile(spTemp);
+
+#if 0
+      // Create temperature L energy spectrum writer
+      IoVariable::SharedSphereScalarLSpectrumWriter spTempL(new IoVariable::SphereScalarLSpectrumWriter("temperature", SchemeType::type()));
+      spTempL->expect(PhysicalNames::TEMPERATURE);
+      //spTempL->numberOutput();
+      spSim->addAsciiOutputFile(spTempL);
+
+      // Create temperature M energy spectrum writer
+      IoVariable::SharedSphereScalarMSpectrumWriter spTempM(new IoVariable::SphereScalarMSpectrumWriter("temperature", SchemeType::type()));
+      spTempM->expect(PhysicalNames::TEMPERATURE);
+      //spTempM->numberOutput();
+      spSim->addAsciiOutputFile(spTempM);
+#endif
 
       // Create kinetic energy writer
-      IoVariable::SharedSphereTorPolEnergyWriter spVector(new IoVariable::SphereTorPolEnergyWriter("kinetic", SchemeType::type()));
-      spVector->expect(PhysicalNames::VELOCITY);
-      spSim->addAsciiOutputFile(spVector);
+      IoVariable::SharedSphereTorPolEnergyWriter spKinetic(new IoVariable::SphereTorPolEnergyWriter("kinetic", SchemeType::type()));
+      spKinetic->expect(PhysicalNames::VELOCITY);
+      spSim->addAsciiOutputFile(spKinetic);
+
+#if 0
+      // Create kinetic L energy Spectrum writer
+      IoVariable::SharedSphereTorPolLSpectrumWriter spKineticL(new IoVariable::SphereTorPolLSpectrumWriter("kinetic", SchemeType::type()));
+      spKineticL->expect(PhysicalNames::VELOCITY);
+      //spKineticL->numberOutput();
+      spSim->addAsciiOutputFile(spKineticL);
+
+      // Create kinetic M energy spectrum writer
+      IoVariable::SharedSphereTorPolMSpectrumWriter spKineticM(new IoVariable::SphereTorPolMSpectrumWriter("kinetic", SchemeType::type()));
+      spKineticM->expect(PhysicalNames::VELOCITY);
+      //spKineticM->numberOutput();
+      spSim->addAsciiOutputFile(spKineticM);
+#endif
 
       // Create magnetic energy writer
-      spVector = IoVariable::SharedSphereTorPolEnergyWriter(new IoVariable::SphereTorPolEnergyWriter("magnetic", SchemeType::type()));
-      spVector->expect(PhysicalNames::MAGNETIC);
-      spSim->addAsciiOutputFile(spVector);
+      IoVariable::SharedSphereTorPolEnergyWriter spMagnetic(new IoVariable::SphereTorPolEnergyWriter("magnetic", SchemeType::type()));
+      spMagnetic->expect(PhysicalNames::MAGNETIC);
+      spSim->addAsciiOutputFile(spMagnetic);
+
+#if 0
+      // Create magnetic L energy spectrum writer
+      IoVariable::SharedSphereTorPolLSpectrumWriter spMagneticL(new IoVariable::SphereTorPolLSpectrumWriter("magnetic", SchemeType::type()));
+      spMagneticL->expect(PhysicalNames::MAGNETIC);
+      spSim->addAsciiOutputFile(spMagneticL);
+
+      // Create magnetic M energy spectrum writer
+      IoVariable::SharedSphereTorPolMSpectrumWriter spMagneticM(new IoVariable::SphereTorPolMSpectrumWriter("magnetic", SchemeType::type()));
+      spMagneticM->expect(PhysicalNames::MAGNETIC);
+      spSim->addAsciiOutputFile(spMagneticM);
+#endif
    }
 
    void PhysicalModel::addHdf5OutputFiles(SharedSimulation spSim)

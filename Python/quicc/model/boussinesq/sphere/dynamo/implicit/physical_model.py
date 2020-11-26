@@ -25,6 +25,20 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
         return ["magnetic_prandtl", "ekman", "prandtl", "rayleigh"]
 
+    def automatic_parameters(self, eq_params):
+        """Extend parameters with automatically computable values"""
+
+        E = eq_params['ekman']
+        Pm = eq_params['magnetic_prandtl']
+        d = {
+                "cfl_inertial":0.1*E/Pm,
+                "cfl_torsional":0.1*E**0.5,
+                "cfl_alfven_scale":Pm/E,
+                "cfl_alfven_damping":(1.0 + Pm)/(2.0)
+            }
+
+        return d
+
     def config_fields(self):
         """Get the list of fields that need a configuration entry"""
 
@@ -88,7 +102,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
     def stencil(self, res, eq_params, eigs, bcs, field_row, make_square):
         """Create the galerkin stencil"""
-        
+
         assert(eigs[0].is_integer())
 
         m = int(eigs[0])
@@ -128,21 +142,21 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                     elif field_col == ("magnetic","tor"):
                         bc = {0:-10, 'rt':0}
                     elif field_col == ("magnetic","pol"):
-                        bc = {0:-13, 'rt':0, 'c':{'l':float("nan")}}
+                        bc = {0:-13, 'rt':0}
                     elif field_col == ("temperature",""):
                         bc = {0:-10, 'rt':0}
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
-                            bc = {0:10}
+                        bc = {0:10}
                     elif field_row == ("velocity","pol") and field_col == field_row:
-                            bc = {0:20}
+                        bc = {0:20}
                     elif field_row == ("magnetic","tor") and field_col == field_row:
                         bc = {0:10}
                     elif field_row == ("magnetic","pol") and field_col == field_row:
-                        bc = {0:13, 'c':{'l':float("nan")}}
+                        bc = {0:13}
                     elif field_row == ("temperature","") and field_col == field_row:
-                            bc = {0:10}
+                        bc = {0:10}
 
             elif bcId == 1:
                 if self.use_galerkin:
@@ -153,10 +167,10 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
-                            bc = {0:12}
+                        bc = {0:12}
                     elif field_row == ("velocity","pol") and field_col == field_row:
-                            bc = {0:21}
-            
+                        bc = {0:21}
+
             # Set LHS galerkin restriction
             if self.use_galerkin:
                 if field_row == ("velocity","tor"):
@@ -182,7 +196,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                     elif field_col == ("magnetic","tor"):
                         bc = {0:-10, 'rt':1}
                     elif field_col == ("magnetic","pol"):
-                        bc = {0:-13, 'c':{'l':float("nan")}, 'rt':1}
+                        bc = {0:-13, 'rt':1}
                     elif field_col == ("temperature",""):
                         bc = {0:-10, 'rt':1}
 
@@ -191,7 +205,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                         bc = {0:-12, 'rt':1}
                     elif field_col == ("velocity","pol"):
                         bc = {0:-21, 'rt':2}
-        
+
         # Field values to RHS:
         elif bcs["bcType"] == self.FIELD_TO_RHS:
             bc = no_bc()
