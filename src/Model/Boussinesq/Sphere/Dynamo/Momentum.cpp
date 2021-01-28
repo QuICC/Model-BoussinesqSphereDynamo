@@ -77,14 +77,18 @@ namespace Dynamo {
 
    void Momentum::initNLKernel(const bool force)
    {
-      // Initialize the physical kernel
-      MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
-      MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
-      auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
-      spNLKernel->setVelocity(this->name(), this->spUnknown());
-      spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
-      spNLKernel->init(1.0, T*Pm, T*Pm);
-      this->mspNLKernel = spNLKernel;
+      // Initialize if empty or forced
+      if(force || !this->mspNLKernel)
+      {
+         // Initialize the physical kernel
+         MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
+         MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
+         auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
+         spNLKernel->setVelocity(this->name(), this->spUnknown());
+         spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
+         spNLKernel->init(1.0, T*Pm, T*Pm);
+         this->mspNLKernel = spNLKernel;
+      }
    }
 
    void Momentum::setRequirements()

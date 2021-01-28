@@ -52,12 +52,16 @@ namespace Dynamo {
 
    void Transport::initNLKernel(const bool force)
    {
-      // Initialize the physical kernel
-      auto spNLKernel = std::make_shared<Physical::Kernel::TransportKernel>();
-      spNLKernel->setScalar(this->name(), this->spUnknown());
-      spNLKernel->setVector(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
-      spNLKernel->init(1.0);
-      this->mspNLKernel = spNLKernel;
+      // Initialize if empty or forced
+      if(force || !this->mspNLKernel)
+      {
+         // Initialize the physical kernel
+         auto spNLKernel = std::make_shared<Physical::Kernel::TransportKernel>();
+         spNLKernel->setScalar(this->name(), this->spUnknown());
+         spNLKernel->setVector(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
+         spNLKernel->init(1.0);
+         this->mspNLKernel = spNLKernel;
+      }
    }
 
    void Transport::setRequirements()
