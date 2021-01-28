@@ -12,7 +12,7 @@ import quicc.base.base_model as base_model
 from quicc.geometry.spherical.sphere_boundary_worland import no_bc
 
 
-class BoussinesqDynamoSphere(base_model.BaseModel):
+class PhysicalModel(base_model.BaseModel):
     """Class to setup the Boussinesq rotating thermal dynamo in a sphere with Worland expansion (Toroidal/Poloidal formulation)"""
 
     def periodicity(self):
@@ -148,15 +148,15 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
-                        bc = {0:10}
+                            bc = {0:10}
                     elif field_row == ("velocity","pol") and field_col == field_row:
-                        bc = {0:20}
+                            bc = {0:20}
                     elif field_row == ("magnetic","tor") and field_col == field_row:
                         bc = {0:10}
                     elif field_row == ("magnetic","pol") and field_col == field_row:
                         bc = {0:13}
                     elif field_row == ("temperature","") and field_col == field_row:
-                        bc = {0:10}
+                            bc = {0:10}
 
             elif bcId == 1:
                 if self.use_galerkin:
@@ -167,9 +167,9 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
-                        bc = {0:12}
+                            bc = {0:12}
                     elif field_row == ("velocity","pol") and field_col == field_row:
-                        bc = {0:21}
+                            bc = {0:21}
 
             # Set LHS galerkin restriction
             if self.use_galerkin:
@@ -276,12 +276,12 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_col)
         if field_row == ("velocity","tor"):
             if field_col == ("velocity","tor"):
-                mat = geo.i2lapl(res[0], res[1], m, bc, Pm, with_sh_coeff = 'laplh', l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i2lapl(res[0], res[1], m, bc, Pm, l_zero_fix = 'zero', restriction = restriction)
                 bc[0] = min(bc[0], 0)
-                mat = mat + geo.i2(res[0], res[1], m, bc, 1j*m*T*Pm, l_zero_fix = 'zero', restriction = restriction)
+                mat = mat + geo.i2(res[0], res[1], m, bc, 1j*m*T*Pm, with_sh_coeff = 'invlaplh', l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("velocity","pol"):
-                mat = geo.i2coriolis(res[0], res[1], m, bc, -T*Pm, l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i2coriolis(res[0], res[1], m, bc, -T*Pm, with_sh_coeff = 'invlaplh', l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("magnetic","tor"):
                 mat = geo.zblk(res[0], res[1], m, bc)
@@ -294,12 +294,12 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
 
         elif field_row == ("velocity","pol"):
             if field_col == ("velocity","tor"):
-                mat = geo.i4coriolis(res[0], res[1], m, bc, T*Pm, l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i4coriolis(res[0], res[1], m, bc, T*Pm, with_sh_coeff = 'invlaplh', l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("velocity","pol"):
-                mat = geo.i4lapl2(res[0], res[1], m, bc, Pm, with_sh_coeff = 'laplh', l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i4lapl2(res[0], res[1], m, bc, Pm, l_zero_fix = 'zero', restriction = restriction)
                 bc[0] = min(bc[0], 0)
-                mat = mat + geo.i4lapl(res[0], res[1], m, bc, 1j*m*T*Pm, l_zero_fix = 'zero', restriction = restriction)
+                mat = mat + geo.i4lapl(res[0], res[1], m, bc, 1j*m*T*Pm, with_sh_coeff = 'invlaplh', l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("magnetic","tor"):
                 mat = geo.zblk(res[0], res[1], m, bc)
@@ -308,7 +308,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                 mat = geo.zblk(res[0], res[1], m, bc)
 
             elif field_col == ("temperature",""):
-                mat = geo.i4(res[0], res[1], m, bc, -Pm**2*Ra*T/Pr, with_sh_coeff = 'laplh', l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i4(res[0], res[1], m, bc, -Pm**2*Ra*T/Pr, l_zero_fix = 'zero', restriction = restriction)
 
         elif field_row == ("magnetic","tor"):
             if field_col == ("velocity","tor"):
@@ -318,7 +318,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                 mat = geo.zblk(res[0], res[1], m, bc)
 
             elif field_col == ("magnetic","tor"):
-                mat = geo.i2lapl(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i2lapl(res[0], res[1], m, bc, l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("magnetic","pol"):
                 mat = geo.zblk(res[0], res[1], m, bc)
@@ -337,7 +337,7 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
                 mat = geo.zblk(res[0], res[1], m, bc)
 
             elif field_col == ("magnetic","pol"):
-                mat = geo.i2lapl(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'zero', restriction = restriction)
+                mat = geo.i2lapl(res[0], res[1], m, bc, l_zero_fix = 'zero', restriction = restriction)
 
             elif field_col == ("temperature",""):
                 mat = geo.zblk(res[0], res[1], m, bc)
@@ -377,16 +377,16 @@ class BoussinesqDynamoSphere(base_model.BaseModel):
         mat = None
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_row)
         if field_row == ("velocity","tor"):
-            mat = geo.i2(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'set', restriction = restriction)
+            mat = geo.i2(res[0], res[1], m, bc, l_zero_fix = 'set', restriction = restriction)
 
         elif field_row == ("velocity","pol"):
-            mat = geo.i4lapl(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'set', restriction = restriction)
+            mat = geo.i4lapl(res[0], res[1], m, bc, l_zero_fix = 'set', restriction = restriction)
 
         elif field_row == ("magnetic","tor"):
-            mat = geo.i2(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'set', restriction = restriction)
+            mat = geo.i2(res[0], res[1], m, bc, l_zero_fix = 'set', restriction = restriction)
 
         elif field_row == ("magnetic","pol"):
-            mat = geo.i2(res[0], res[1], m, bc, with_sh_coeff = 'laplh', l_zero_fix = 'set', restriction = restriction)
+            mat = geo.i2(res[0], res[1], m, bc, l_zero_fix = 'set', restriction = restriction)
 
         elif field_row == ("temperature",""):
             mat = geo.i2(res[0], res[1], m, bc, restriction = restriction)

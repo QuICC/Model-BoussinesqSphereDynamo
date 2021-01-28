@@ -1,7 +1,6 @@
 /** 
  * @file Transport.cpp
  * @brief Source of the implementation of the transport equation in the Boussinesq thermal convection dynamo in a sphere
- * @author Philippe Marti \<philippe.marti@colorado.edu\>
  */
 
 // Configuration includes
@@ -15,14 +14,15 @@
 
 // Class include
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
 
 // Project includes
 //
-#include "Base/Typedefs.hpp"
-#include "Base/MathConstants.hpp"
-#include "Enums/NonDimensional.hpp"
-#include "PhysicalOperators/VelocityAdvection.hpp"
+#include "QuICC/Typedefs.hpp"
+#include "QuICC/Math/Constants.hpp"
+#include "QuICC/PhysicalNames/Velocity.hpp"
+#include "QuICC/PhysicalNames/Temperature.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 
 namespace QuICC {
 
@@ -34,8 +34,8 @@ namespace Sphere {
 
 namespace Dynamo {
 
-   Transport::Transport(SharedEquationParameters spEqParams)
-      : IScalarEquation(spEqParams)
+   Transport::Transport(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme)
+      : IScalarEquation(spEqParams,spScheme)
    {
       // Set the variable requirements
       this->setRequirements();
@@ -50,31 +50,39 @@ namespace Dynamo {
       this->defineCoupling(FieldComponents::Spectral::SCALAR, CouplingInformation::PROGNOSTIC, 0, true, false);
    }
 
-   void Transport::computeNonlinear(Datatypes::PhysicalScalarType& rNLComp, FieldComponents::Physical::Id id) const
+   void Transport::initNLKernel(const bool force)
    {
-      // Assert on scalar component is used
-      assert(id == FieldComponents::Physical::SCALAR);
-
-      /// 
-      /// Computation of the advection:
-      ///   \f$ \left(\vec u\cdot\nabla\right)\theta\f$
-      ///
-      Physical::VelocityAdvection<FieldComponents::Physical::R,FieldComponents::Physical::THETA,FieldComponents::Physical::PHI>::set(rNLComp, this->vector(PhysicalNames::VELOCITY).dom(0).phys(), this->unknown().dom(0).grad(), 1.0);
+      // Initialize the physical kernel
+      auto spNLKernel = std::make_shared<Physical::Kernel::TransportKernel>();
+      spNLKernel->setScalar(this->name(), this->spUnknown());
+      spNLKernel->setVector(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
+      spNLKernel->init(1.0);
+      this->mspNLKernel = spNLKernel;
    }
 
    void Transport::setRequirements()
    {
       // Set temperatur as equation unknown
-      this->setName(PhysicalNames::TEMPERATURE);
+      this->setName(PhysicalNames::Temperature::id());
 
       // Set solver timing
       this->setSolveTiming(SolveTiming::PROGNOSTIC);
 
+      // Forward transform generates nonlinear RHS
+      this->setForwardPathsType(FWD_IS_NONLINEAR);
+
+      // Get reference to spatial scheme
+      const auto& ss = this->ss();
+
       // Add temperature to requirements: is scalar?, need spectral?, need physical?, need diff?
-      this->mRequirements.addField(PhysicalNames::TEMPERATURE, FieldRequirement(true, true, false, true));
+      auto& tempReq = this->mRequirements.addField(PhysicalNames::Temperature::id(), FieldRequirement(true, ss.spectral(), ss.physical()));
+      tempReq.enableSpectral();
+      tempReq.enableGradient();
 
       // Add velocity to requirements: is scalar?, need spectral?, need physical?, need diff?(, need curl?)
-      this->mRequirements.addField(PhysicalNames::VELOCITY, FieldRequirement(false, true, true, false, false));
+      auto& velReq = this->mRequirements.addField(PhysicalNames::Velocity::id(), FieldRequirement(false, ss.spectral(), ss.physical()));
+      velReq.enableSpectral();
+      velReq.enablePhysical();
    }
 
 }

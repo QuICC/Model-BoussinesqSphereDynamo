@@ -1,7 +1,6 @@
 /**
  * @file Transport.hpp
  * @brief Implementation of the transport equation for the Boussinesq thermal convection dynamo in a sphere
- * @author Philippe Marti \<philippe.marti@colorado.edu\>
  */
 
 #ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
@@ -12,15 +11,15 @@
 
 // System includes
 //
+#include <memory>
 
 // External includes
 //
 
 // Project includes
 //
-#include "Base/Typedefs.hpp"
-#include "TypeSelectors/ScalarSelector.hpp"
-#include "Equations/IScalarEquation.hpp"
+#include "QuICC/Typedefs.hpp"
+#include "QuICC/Equations/IScalarEquation.hpp"
 
 namespace QuICC {
 
@@ -33,7 +32,7 @@ namespace Sphere {
 namespace Dynamo {
 
    /**
-    * @brief Implementation of the transport equation for the Boussinesq thermal convection dynamo in a sphere 
+    * @brief Implementation of the transport equation for the Boussinesq thermal convection dynamo in a sphere
     */
    class Transport: public IScalarEquation
    {
@@ -43,7 +42,7 @@ namespace Dynamo {
           *
           * @param spEqParams  Shared equation parameters
           */
-         Transport(SharedEquationParameters spEqParams);
+         Transport(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme);
 
          /**
           * @brief Simple empty destructor
@@ -51,12 +50,9 @@ namespace Dynamo {
          virtual ~Transport();
 
          /**
-          * @brief Compute the nonlinear interaction term
-          *
-          * @param rNLComp Nonlinear term component
-          * @param id      ID of the component (allows for a more general implementation)
+          * @brief Initialize nonlinear interaction kernel
           */
-         virtual void computeNonlinear(Datatypes::PhysicalScalarType& rNLComp, FieldComponents::Physical::Id id) const;
+         virtual void initNLKernel(const bool force = false);
 
       protected:
          /**

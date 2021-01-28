@@ -1,52 +1,63 @@
 # Set Model name and library name
 get_filename_component(modName ${CMAKE_CURRENT_SOURCE_DIR} NAME)
-string(TOLOWER "quicc_${modName}" libName)
+string(TOLOWER "quicc_${modName}" QUICC_CURRENT_MODEL_LIB)
 set(modImpls "Explicit" "Implicit")
 
+function(quicc_model_id impl id)
+  set(ModelId
+    "Boussinesq/Sphere/Dynamo/${impl}")
+  set(${id} "${ModelId}" PARENT_SCOPE)
+endfunction()
+
+# Set library visibility
+set(QUICC_CMAKE_SRC_VISIBILITY PRIVATE)
+
 # Setup generic model library
-quicc_add_library(${libName} "")
-set_target_properties(${libName} PROPERTIES LINKER_LANGUAGE CXX)
-target_include_directories(${libName} PUBLIC include/)
-target_link_libraries(${libName}
+quicc_add_library(${QUICC_CURRENT_MODEL_LIB} "")
+set_target_properties(${QUICC_CURRENT_MODEL_LIB} PROPERTIES LINKER_LANGUAGE CXX)
+target_include_directories(${QUICC_CURRENT_MODEL_LIB} PUBLIC
+  include/
+  )
+target_link_libraries(${QUICC_CURRENT_MODEL_LIB} PUBLIC
   quicc_framework
-)
+  )
+
 # Create model implementations libraries
 foreach(impl ${modImpls})
-  string(TOLOWER "${libName}_${impl}" modLib)
+  string(TOLOWER "${QUICC_CURRENT_MODEL_LIB}_${impl}" modLib)
   quicc_add_library(${modLib} "")
   set_target_properties(${modLib} PROPERTIES LINKER_LANGUAGE CXX)
-  target_include_directories(${modLib} PUBLIC include/)
-  target_link_libraries(${modLib}
-    ${libName}
-  )
+  target_include_directories(${modLib} PUBLIC
+    include/
+    )
+  target_link_libraries(${modLib} PUBLIC
+    ${QUICC_CURRENT_MODEL_LIB}
+    )
 endforeach()
 
 # Update python files
-add_custom_target(${libName}_updatepy)
-add_custom_command(TARGET ${libName}_updatepy POST_BUILD
+add_custom_target(${QUICC_CURRENT_MODEL_LIB}_updatepy)
+add_custom_command(TARGET ${QUICC_CURRENT_MODEL_LIB}_updatepy POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-   "${CMAKE_CURRENT_SOURCE_DIR}/Python"
-   "${CMAKE_BINARY_DIR}/Python"
-   COMMENT "Copying Python files for ${modName}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Python"
+  "${CMAKE_BINARY_DIR}/Python"
+  COMMENT "Copying Python files for ${modName}"
   VERBATIM
-)
-add_dependencies(${libName} ${libName}_updatepy)
+  )
+add_dependencies(${QUICC_CURRENT_MODEL_LIB} ${QUICC_CURRENT_MODEL_LIB}_updatepy)
 
 add_subdirectory(src)
 
 # Create model executables
 foreach(impl ${modImpls})
-  set(ModelId
-    "Boussinesq/Sphere/Dynamo/${impl}")
-  set(ModelFile
-    "include/QuICC/Model/${ModelId}/PhysicalModel.hpp")
-  string(TOLOWER "${libName}_${impl}" modLib)
+  quicc_model_id(${impl} ModelId)
+  string(TOLOWER "${QUICC_CURRENT_MODEL_LIB}_${impl}" modLib)
   quicc_create_config_exe(${ModelId} "${modLib}")
   quicc_create_state_exe(${ModelId} "${modLib}")
   quicc_create_model_exe(${ModelId} "${modLib}")
   quicc_create_visu_exe(${ModelId} "${modLib}")
 endforeach()
-unset(libName)
+unset(QUICC_CURRENT_MODEL_LIB)
 unset(modName)
 unset(modImpls)
 unset(modLib)

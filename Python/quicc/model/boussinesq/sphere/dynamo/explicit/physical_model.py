@@ -12,7 +12,7 @@ import quicc.base.base_model as base_model
 from quicc.geometry.spherical.sphere_radius_boundary_worland import no_bc
 
 
-class BoussinesqDynamoSphereStd(base_model.BaseModel):
+class PhysicalModel(base_model.BaseModel):
     """Class to setup the Boussinesq rotating thermal convection dynamo in a sphere with Worland expansion (Toroidal/Poloidal formulation) without field coupling (standard implementation)"""
 
     def periodicity(self):
@@ -172,9 +172,9 @@ class BoussinesqDynamoSphereStd(base_model.BaseModel):
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
-                        bc = {0:12}
+                            bc = {0:12}
                     elif field_row == ("velocity","pol") and field_col == field_row:
-                        bc = {0:21}
+                            bc = {0:21}
 
             # Set LHS galerkin restriction
             if self.use_galerkin:
@@ -245,7 +245,7 @@ class BoussinesqDynamoSphereStd(base_model.BaseModel):
         mat = None
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_col)
         if field_row == ("velocity","pol") and field_col == ("temperature",""):
-            mat = geo.i4(res[0], l, bc, (Pm**2*Ra*T/Pr)*l*(l+1.0))
+            mat = geo.i4(res[0], l, bc, (Pm**2*Ra*T/Pr))
 
         elif field_row == ("temperature","") and field_col == ("velocity","pol"):
             mat = geo.i2(res[0], l, bc, -l*(l+1.0))
@@ -283,16 +283,16 @@ class BoussinesqDynamoSphereStd(base_model.BaseModel):
         mat = None
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_col)
         if field_row == ("velocity","tor") and field_col == field_row:
-            mat = geo.i2lapl(res[0], l, bc, Pm*l*(l+1.0))
+            mat = geo.i2lapl(res[0], l, bc, Pm)
 
         elif field_row == ("velocity","pol") and field_col == field_row:
-            mat = geo.i4lapl2(res[0], l, bc, Pm*l*(l+1.0))
+            mat = geo.i4lapl2(res[0], l, bc, Pm)
 
         elif field_row == ("magnetic","tor") and field_col == field_row:
-            mat = geo.i2lapl(res[0], l, bc, l*(l+1.0))
+            mat = geo.i2lapl(res[0], l, bc)
 
         elif field_row == ("magnetic","pol") and field_col == field_row:
-            mat = geo.i2lapl(res[0], l, bc, l*(l+1.0))
+            mat = geo.i2lapl(res[0], l, bc)
 
         elif field_row == ("temperature","") and field_col == field_row:
             mat = geo.i2lapl(res[0], l, bc, Pm/Pr)
@@ -311,16 +311,16 @@ class BoussinesqDynamoSphereStd(base_model.BaseModel):
         mat = None
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_row)
         if field_row == ("velocity","tor"):
-            mat = geo.i2(res[0], l, bc, l*(l+1.0))
+            mat = geo.i2(res[0], l, bc)
 
         elif field_row == ("velocity","pol"):
-            mat = geo.i4lapl(res[0], l, bc, l*(l+1.0))
+            mat = geo.i4lapl(res[0], l, bc)
 
         elif field_row == ("magnetic","tor"):
-            mat = geo.i2(res[0], l, bc, l*(l+1.0))
+            mat = geo.i2(res[0], l, bc)
 
         elif field_row == ("magnetic","pol"):
-            mat = geo.i2(res[0], l, bc, l*(l+1.0))
+            mat = geo.i2(res[0], l, bc)
 
         elif field_row == ("temperature",""):
             mat = geo.i2(res[0], l, bc)
