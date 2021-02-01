@@ -235,7 +235,7 @@ namespace Dynamo {
       }
 
       // Add output file
-      auto spOut = std::make_shared<Io::Variable::StateFileWriter>(spGen->ss().tag(), spGen->ss().isRegular());
+      auto spOut = std::make_shared<Io::Variable::StateFileWriter>(spGen->ss().tag(), spGen->ss().has(SpatialScheme::Feature::RegularSpectrum));
       spOut->expect(PhysicalNames::Temperature::id());
       spOut->expect(PhysicalNames::Velocity::id());
       spOut->expect(PhysicalNames::Magnetic::id());
