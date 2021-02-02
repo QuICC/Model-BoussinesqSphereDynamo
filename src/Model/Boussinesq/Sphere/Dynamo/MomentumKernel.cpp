@@ -74,7 +74,7 @@ namespace Kernel {
    {
       IPhysicalKernel::setMesh(spMesh);
 
-      if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().id() == SpatialScheme::WLFl::sId);},this->vector(this->name())))
+      if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
             this->mCosTheta = this->mspMesh->at(1).array().cos();
             this->mSinTheta = this->mspMesh->at(1).array().sin();
@@ -105,7 +105,7 @@ namespace Kernel {
             break;
       }
 
-      if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().id() == SpatialScheme::WLFl::sId);},this->vector(this->name())))
+      if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
          ///
          /// Compute Coriolis term
