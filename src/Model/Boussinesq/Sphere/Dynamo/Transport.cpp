@@ -47,7 +47,10 @@ namespace Dynamo {
 
    void Transport::setCoupling()
    {
-      this->defineCoupling(FieldComponents::Spectral::SCALAR, CouplingInformation::PROGNOSTIC, 0, true, false);
+      auto features = defaultCouplingFeature();
+      features.at(CouplingFeature::Nonlinear) = true;
+
+      this->defineCoupling(FieldComponents::Spectral::SCALAR, CouplingInformation::PROGNOSTIC, 0, features);
    }
 
    void Transport::initNLKernel(const bool force)

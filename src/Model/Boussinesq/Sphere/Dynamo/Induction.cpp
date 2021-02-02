@@ -61,9 +61,12 @@ namespace Dynamo {
          throw std::logic_error("Unknown spatial scheme was used to setup equations!");
       }
 
-      this->defineCoupling(FieldComponents::Spectral::TOR, CouplingInformation::PROGNOSTIC, start, true, false);
+      auto features = defaultCouplingFeature();
+      features.at(CouplingFeature::Nonlinear) = true;
 
-      this->defineCoupling(FieldComponents::Spectral::POL, CouplingInformation::PROGNOSTIC, start, true, false);
+      this->defineCoupling(FieldComponents::Spectral::TOR, CouplingInformation::PROGNOSTIC, start, features);
+
+      this->defineCoupling(FieldComponents::Spectral::POL, CouplingInformation::PROGNOSTIC, start, features);
    }
 
    void Induction::setNLComponents()
