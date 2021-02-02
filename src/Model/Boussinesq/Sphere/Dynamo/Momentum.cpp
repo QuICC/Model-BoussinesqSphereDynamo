@@ -24,6 +24,7 @@
 #include "QuICC/NonDimensional/MagPrandtl.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
+#include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 
 namespace QuICC {
