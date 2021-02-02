@@ -22,8 +22,6 @@
 #include "QuICC/Math/Constants.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
-#include "QuICC/SpatialScheme/3D/WLFl.hpp"
-#include "QuICC/SpatialScheme/3D/WLFm.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 
 namespace QuICC {

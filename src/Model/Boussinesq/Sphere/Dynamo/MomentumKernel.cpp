@@ -18,7 +18,6 @@
 
 // Project includes
 //
-#include "QuICC/SpatialScheme/3D/WLFl.hpp"
 #include "QuICC/PhysicalOperators/Cross.hpp"
 #include "QuICC/PhysicalOperators/SphericalCoriolis.hpp"
 
