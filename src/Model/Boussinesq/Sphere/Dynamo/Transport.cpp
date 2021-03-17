@@ -34,8 +34,8 @@ namespace Sphere {
 
 namespace Dynamo {
 
-   Transport::Transport(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme)
-      : IScalarEquation(spEqParams,spScheme)
+   Transport::Transport(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme, std::shared_ptr<Model::IModelBackend> spBackend)
+      : IScalarEquation(spEqParams, spScheme, spBackend)
    {
       // Set the variable requirements
       this->setRequirements();

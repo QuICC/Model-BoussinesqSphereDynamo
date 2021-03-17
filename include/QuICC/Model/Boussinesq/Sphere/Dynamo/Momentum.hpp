@@ -42,7 +42,7 @@ namespace Dynamo {
           *
           * @param spEqParams  Shared equation parameters
           */
-         Momentum(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme);
+         Momentum(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme, std::shared_ptr<Model::IModelBackend> spBackend);
 
          /**
           * @brief Simple empty destructor

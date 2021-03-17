@@ -35,8 +35,8 @@ namespace Sphere {
 
 namespace Dynamo {
 
-   Induction::Induction(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme)
-      : IVectorEquation(spEqParams,spScheme)
+   Induction::Induction(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme, std::shared_ptr<Model::IModelBackend> spBackend)
+      : IVectorEquation(spEqParams, spScheme, spBackend)
    {
       // Set the variable requirements
       this->setRequirements();

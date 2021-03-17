@@ -37,8 +37,8 @@ namespace Sphere {
 
 namespace Dynamo {
 
-   Momentum::Momentum(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme)
-      : IVectorEquation(spEqParams,spScheme)
+   Momentum::Momentum(SharedEquationParameters spEqParams, SpatialScheme::SharedCISpatialScheme spScheme, std::shared_ptr<Model::IModelBackend> spBackend)
+      : IVectorEquation(spEqParams, spScheme, spBackend)
    {
       // Set the variable requirements
       this->setRequirements();

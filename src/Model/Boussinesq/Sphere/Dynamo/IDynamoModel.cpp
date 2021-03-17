@@ -66,33 +66,16 @@ namespace Dynamo {
       return VectorFormulation::TORPOL;
    }
 
-   void IDynamoModel::registerNames()
-   {
-      // Physical names
-      PhysicalNames::Magnetic::id();
-      PhysicalNames::Temperature::id();
-      PhysicalNames::Velocity::id();
-      // NonDimensional names
-      NonDimensional::Ekman::id();
-      NonDimensional::Prandtl::id();
-      NonDimensional::Rayleigh::id();
-      NonDimensional::MagPrandtl::id();
-      NonDimensional::CflInertial::id();
-      NonDimensional::CflTorsional::id();
-      NonDimensional::CflAlfvenScale::id();
-      NonDimensional::CflAlfvenDamping::id();
-   }
-
    void IDynamoModel::addEquations(SharedSimulation spSim)
    {
       // Add transport equation
-      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Transport>();
+      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Transport>(this->spBackend());
 
       // Add Navier-Stokes equation
-      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Momentum>();
+      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Momentum>(this->spBackend());
 
       // Add induction equation
-      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Induction>();
+      spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Induction>(this->spBackend());
    }
 
    void IDynamoModel::addStates(SharedStateGenerator spGen)
