@@ -198,6 +198,10 @@ namespace Dynamo {
             case 3:
                spVector->setStateType(Equations::SphereExactStateIds::BENCHMAGC2);
                break;
+
+            case 4:
+               spVector->setSpectralType(Equations::SphereExactStateIds::IO_VALIDATION);
+               break;
          }
 
       // Generate random spectrum
