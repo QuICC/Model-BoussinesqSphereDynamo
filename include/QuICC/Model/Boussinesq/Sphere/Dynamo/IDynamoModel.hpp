@@ -36,7 +36,7 @@ namespace Dynamo {
    /**
     * @brief Implementation of the Boussinesq thermal convection dynamo in a sphere model (Toroidal/Poloidal formulation)
     */
-   class IDynamoModel: public IPhysicalPyModel
+   class IDynamoModel: public IPhysicalPyModel<Simulation,StateGenerator,VisualizationGenerator>
    {
       public:
          /**
