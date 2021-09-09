@@ -45,7 +45,6 @@
 #include "QuICC/Io/Variable/SphereTorPolMSpectrumWriter.hpp"
 #include "QuICC/Generator/States/RandomScalarState.hpp"
 #include "QuICC/Generator/States/RandomVectorState.hpp"
-#include "QuICC/Generator/States/SphereExactStateIds.hpp"
 #include "QuICC/Generator/States/SphereExactScalarState.hpp"
 #include "QuICC/Generator/States/SphereExactVectorState.hpp"
 #include "QuICC/Generator/States/Kernels/Sphere/BenchmarkTempC1.hpp"
