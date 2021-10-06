@@ -22,6 +22,7 @@
 #include "QuICC/Math/Constants.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
+#include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 
 namespace QuICC {
@@ -73,7 +74,7 @@ namespace Dynamo {
       this->setName(PhysicalNames::Temperature::id());
 
       // Set solver timing
-      this->setSolveTiming(SolveTiming::PROGNOSTIC);
+      this->setSolveTiming(SolveTiming::Prognostic::id());
 
       // Forward transform generates nonlinear RHS
       this->setForwardPathsType(FWD_IS_NONLINEAR);

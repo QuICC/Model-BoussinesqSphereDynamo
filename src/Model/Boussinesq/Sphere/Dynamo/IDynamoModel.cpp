@@ -45,11 +45,15 @@
 #include "QuICC/Io/Variable/SphereTorPolMSpectrumWriter.hpp"
 #include "QuICC/Generator/States/RandomScalarState.hpp"
 #include "QuICC/Generator/States/RandomVectorState.hpp"
-#include "QuICC/Generator/States/SphereExactStateIds.hpp"
 #include "QuICC/Generator/States/SphereExactScalarState.hpp"
 #include "QuICC/Generator/States/SphereExactVectorState.hpp"
+#include "QuICC/Generator/States/Kernels/Sphere/BenchmarkTempC1.hpp"
+#include "QuICC/Generator/States/Kernels/Sphere/BenchmarkVelC2.hpp"
+#include "QuICC/Generator/States/Kernels/Sphere/BenchmarkMagC2.hpp"
 #include "QuICC/Generator/Visualizers/ScalarFieldVisualizer.hpp"
 #include "QuICC/Generator/Visualizers/VectorFieldVisualizer.hpp"
+#include "QuICC/SpectralKernels/IoValidation.hpp"
+#include "QuICC/SpectralKernels/MakeRandom.hpp"
 
 namespace QuICC {
 
@@ -80,153 +84,220 @@ namespace Dynamo {
 
    void IDynamoModel::addStates(SharedStateGenerator spGen)
    {
-      // Generate "exact" solutions (trigonometric or monomial)
-      if(true)
+      // Shared pointer to equation
+      Equations::SharedSphereExactScalarState spScalar;
+      Equations::SharedSphereExactVectorState spVector;
+
+      Spectral::Kernel::Complex3DMapType tSH;
+      std::pair<Spectral::Kernel::Complex3DMapType::iterator,bool> ptSH;
+
+      // Add temperature initial state generator
+      spScalar = spGen->addEquation<Equations::SphereExactScalarState>(this->spBackend());
+      spScalar->setIdentity(PhysicalNames::Temperature::id());
+      switch(3)
       {
-         // Shared pointer to equation
-         Equations::SharedSphereExactScalarState spScalar;
-         Equations::SharedSphereExactVectorState spVector;
+         case 0:
+            {
+               spScalar->setPhysicalNoise(1e-15);
+            }
+            break;
 
-         Equations::SHMapType tSH;
-         std::pair<Equations::SHMapType::iterator,bool> ptSH;
+         case 1:
+            {
+               spScalar->setPhysicalConstant(1.0);
+            }
+            break;
 
-         // Add temperature initial state generator
-         spScalar = spGen->addEquation<Equations::SphereExactScalarState>(this->spBackend());
-         spScalar->setIdentity(PhysicalNames::Temperature::id());
-         switch(1)
-         {
-            case 0:
-               spScalar->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
+         case 2:
+            {
                tSH.clear();
                ptSH = tSH.insert(std::make_pair(std::make_pair(3,3), std::map<int,MHDComplex>()));
                ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0,2.0)));
-               spScalar->setHarmonicOptions(tSH);
-               break;
+               spScalar->setSpectralModes(tSH);
+            }
+            break;
 
-            case 1:
-               spScalar->setStateType(Equations::SphereExactStateIds::BENCHTEMPC1);
-               break;
+         case 3:
+            {
+               auto spKernel = std::make_shared<Physical::Kernel::Sphere::BenchmarkTempC1>();
+               spKernel->init(0.0, 1e-5);
+               spScalar->setPhysicalKernel(spKernel);
+            }
+            break;
 
-            case 2:
-               spScalar->setSpectralType(Equations::SphereExactStateIds::IO_VALIDATION);
-               break;
-         }
+         case 4:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::IoValidation>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               spKernel->init(100);
+               spScalar->setSrcKernel(spKernel);
+            }
+            break;
 
-         // Add velocity initial state generator
-         spVector = spGen->addEquation<Equations::SphereExactVectorState>(this->spBackend());
-         spVector->setIdentity(PhysicalNames::Velocity::id());
-         switch(3)
-         {
-            case 0:
-               // Toroidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::TOR, tSH);
-               break;
+         case 5:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::MakeRandom>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               std::vector<MHDFloat> ratios = {1e4, 1e4, 1e4};
+               spKernel->setRatio(ratios);
+               spKernel->init(-1e-4, 1e-4);
+               spScalar->setSrcKernel(spKernel);
+            }
+            break;
+      }
 
-            case 1:
-               // Poloidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::POL, tSH);
-               break;
-
-            case 2:
-               // Toroidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::TOR, tSH);
-               // Poloidal
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::POL, tSH);
-               break;
-
-            case 3:
-               spVector->setStateType(Equations::SphereExactStateIds::BENCHVELC2);
-               break;
-
-            case 4:
-               spVector->setSpectralType(Equations::SphereExactStateIds::IO_VALIDATION);
-               break;
-         }
-
-         // Add magnetic initial state generator
-         spVector = spGen->addEquation<Equations::SphereExactVectorState>(this->spBackend());
-         spVector->setIdentity(PhysicalNames::Magnetic::id());
-         switch(3)
-         {
-            case 0:
-               // Toroidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::TOR, tSH);
-               break;
-
-            case 1:
-               // Poloidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::POL, tSH);
-               break;
-
-            case 2:
-               // Toroidal
-               spVector->setSpectralType(Equations::SphereExactStateIds::HARMONIC);
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::TOR, tSH);
-               // Poloidal
-               tSH.clear();
-               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
-               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
-               spVector->setHarmonicOptions(FieldComponents::Spectral::POL, tSH);
-               break;
-
-            case 3:
-               spVector->setStateType(Equations::SphereExactStateIds::BENCHMAGC2);
-               break;
-
-            case 4:
-               spVector->setSpectralType(Equations::SphereExactStateIds::IO_VALIDATION);
-               break;
-         }
-
-      // Generate random spectrum
-      } else
+      // Add velocity initial state generator
+      spVector = spGen->addEquation<Equations::SphereExactVectorState>(this->spBackend());
+      spVector->setIdentity(PhysicalNames::Velocity::id());
+      switch(3)
       {
-         // Shared pointer to random initial state equation
-         Equations::SharedRandomScalarState spScalar;
-         Equations::SharedRandomVectorState spVector;
+         // Toroidal only
+         case 0:
+            {
+               // Toroidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
 
-         // Add velocity random initial state generator
-         spVector = spGen->addEquation<Equations::RandomVectorState>();
-         spVector->setIdentity(PhysicalNames::Velocity::id());
-         spVector->setSpectrum(FieldComponents::Spectral::TOR, -1e-4, 1e-4, 1e4, 1e4, 1e4);
-         spVector->setSpectrum(FieldComponents::Spectral::POL, -1e-4, 1e-4, 1e4, 1e4, 1e4);
+         // Poloidal only
+         case 1:
+            {
+               // Toroidal
+               tSH.clear();
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
 
-         // Add magnetic random initial state generator
-         spVector = spGen->addEquation<Equations::RandomVectorState>();
-         spVector->setIdentity(PhysicalNames::Magnetic::id());
-         spVector->setSpectrum(FieldComponents::Spectral::TOR, -1e-4, 1e-4, 1e4, 1e4, 1e4);
-         spVector->setSpectrum(FieldComponents::Spectral::POL, -1e-4, 1e-4, 1e4, 1e4, 1e4);
+         // Toroidal & Poloidal
+         case 2:
+            {
+               // Toroidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
 
-         // Add scalar random initial state generator
-         spScalar = spGen->addEquation<Equations::RandomScalarState>();
-         spScalar->setIdentity(PhysicalNames::Temperature::id());
-         spScalar->setSpectrum(-1e-4, 1e-4, 1e4, 1e4, 1e4);
+         case 3:
+            {
+               auto spKernel = std::make_shared<Physical::Kernel::Sphere::BenchmarkVelC2>();
+               spKernel->init();
+               spVector->setPhysicalKernel(spKernel);
+            }
+            break;
+
+         case 4:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::IoValidation>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               spKernel->init(100);
+               spVector->setSrcKernel(FieldComponents::Spectral::TOR, spKernel);
+               spVector->setSrcKernel(FieldComponents::Spectral::POL, spKernel);
+            }
+            break;
+
+         case 5:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::MakeRandom>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               std::vector<MHDFloat> ratios = {1e4, 1e4, 1e4};
+               spKernel->setRatio(ratios);
+               spKernel->init(-1e-4, 1e-4);
+               spVector->setSrcKernel(FieldComponents::Spectral::TOR, spKernel);
+               spVector->setSrcKernel(FieldComponents::Spectral::POL, spKernel);
+            }
+            break;
+      }
+
+      // Add magnetic initial state generator
+      spVector = spGen->addEquation<Equations::SphereExactVectorState>(this->spBackend());
+      spVector->setIdentity(PhysicalNames::Magnetic::id());
+      switch(3)
+      {
+         // Toroidal only
+         case 0:
+            {
+               // Toroidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
+
+         // Poloidal only
+         case 1:
+            {
+               // Toroidal
+               tSH.clear();
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
+
+         // Toroidal & Poloidal
+         case 2:
+            {
+               // Toroidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(1,1), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::TOR, tSH);
+               // Poloidal
+               tSH.clear();
+               ptSH = tSH.insert(std::make_pair(std::make_pair(2,0), std::map<int,MHDComplex>()));
+               ptSH.first->second.insert(std::make_pair(7, MHDComplex(1.0)));
+               spVector->setSpectralModes(FieldComponents::Spectral::POL, tSH);
+            }
+            break;
+
+         case 3:
+            {
+               auto spKernel = std::make_shared<Physical::Kernel::Sphere::BenchmarkMagC2>();
+               spKernel->init();
+               spVector->setPhysicalKernel(spKernel);
+            }
+            break;
+
+         case 4:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::IoValidation>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               spKernel->init(100);
+               spVector->setSrcKernel(FieldComponents::Spectral::TOR, spKernel);
+               spVector->setSrcKernel(FieldComponents::Spectral::POL, spKernel);
+            }
+            break;
+
+         case 5:
+            {
+               auto spKernel = std::make_shared<Spectral::Kernel::MakeRandom>(spGen->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+               std::vector<MHDFloat> ratios = {1e4, 1e4, 1e4};
+               spKernel->setRatio(ratios);
+               spKernel->init(-1e-4, 1e-4);
+               spVector->setSrcKernel(FieldComponents::Spectral::TOR, spKernel);
+               spVector->setSrcKernel(FieldComponents::Spectral::POL, spKernel);
+            }
+            break;
       }
 
       // Add output file
