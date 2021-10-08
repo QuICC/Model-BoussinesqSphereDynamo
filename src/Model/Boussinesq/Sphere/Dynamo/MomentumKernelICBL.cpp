@@ -103,7 +103,7 @@ namespace Kernel {
       {
          case(FieldComponents::Physical::R):
             std::visit([&](auto&& v){Physical::Cross<FieldComponents::Physical::THETA,FieldComponents::Physical::PHI>::set(rNLComp, v->dom(0).curl(), v->dom(0).phys(), this->mInertia);}, this->vector(this->name()));
-            std::visit([&](auto&& v){Physical::Cross<FieldComponents::Physical::THETA,FieldComponents::Physical::PHI>::set(rNLComp, v->dom(0).curl(), v->dom(0).phys(), this->mInertia);}, this->vector(this->name()));
+            std::visit([&](auto&& m){Physical::Cross<FieldComponents::Physical::THETA,FieldComponents::Physical::PHI>::add(rNLComp, m->dom(0).phys(), m->dom(0).curl(), this->mLorentz);}, this->vector(this->mMagName));
             break;
          case(FieldComponents::Physical::THETA):
             std::visit([&](auto&& v){Physical::Cross<FieldComponents::Physical::PHI,FieldComponents::Physical::R>::set(rNLComp, v->dom(0).curl(), v->dom(0).phys(), this->mInertia);}, this->vector(this->name()));
@@ -118,7 +118,7 @@ namespace Kernel {
             break;
       }
 
-      std::visit([&](auto&& s){Physical::SphericalBuoyancy::add(rNLComp, id, s->dom(0).res(), this->mRadius, s->dom(0).phys(), this->mBuoyancy);}, this->scalar(this->mTempName));
+      std::visit([&](auto&& s){Physical::SphericalBuoyancy::sub(rNLComp, id, s->dom(0).res(), this->mRadius, s->dom(0).phys(), this->mBuoyancy);}, this->scalar(this->mTempName));
 
       if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
