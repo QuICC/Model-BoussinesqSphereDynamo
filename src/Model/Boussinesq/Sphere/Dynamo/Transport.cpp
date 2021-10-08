@@ -23,7 +23,7 @@
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernelHeat.hpp"
 
 namespace QuICC {
 
@@ -60,7 +60,7 @@ namespace Dynamo {
       if(force || !this->mspNLKernel)
       {
          // Initialize the physical kernel
-         auto spNLKernel = std::make_shared<Physical::Kernel::TransportKernel>();
+         auto spNLKernel = std::make_shared<Physical::Kernel::TransportKernelHeat>();
          spNLKernel->setScalar(this->name(), this->spUnknown());
          spNLKernel->setVector(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
          spNLKernel->init(1.0);

@@ -62,6 +62,7 @@ class PhysicalModel(base_model.BaseModel):
                 fields = [("velocity","pol")]
             else:
                 fields = []
+            fields = []
 
         # Explicit nonlinear terms
         elif timing == self.EXPLICIT_NONLINEAR:

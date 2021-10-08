@@ -22,11 +22,14 @@
 #include "QuICC/Math/Constants.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
 #include "QuICC/NonDimensional/MagPrandtl.hpp"
+#include "QuICC/NonDimensional/Prandtl.hpp"
+#include "QuICC/NonDimensional/Rayleigh.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
+#include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernelICBL.hpp"
 
 namespace QuICC {
 
@@ -86,10 +89,13 @@ namespace Dynamo {
          // Initialize the physical kernel
          MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
          MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
-         auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
+         MHDFloat Pr = this->eqParams().nd(NonDimensional::Prandtl::id());
+         MHDFloat Ra = this->eqParams().nd(NonDimensional::Rayleigh::id());
+         auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernelICBL>();
          spNLKernel->setVelocity(this->name(), this->spUnknown());
+         spNLKernel->setTemperature(PhysicalNames::Temperature::id(), this->spScalar(PhysicalNames::Temperature::id()));
          spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
-         spNLKernel->init(1.0, T*Pm, T*Pm);
+         spNLKernel->init(1.0, T*Pm, Pm*Pm*Ra*T/Pr, T*Pm);
          this->mspNLKernel = spNLKernel;
       }
    }
