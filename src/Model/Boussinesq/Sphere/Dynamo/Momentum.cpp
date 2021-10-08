@@ -125,6 +125,11 @@ namespace Dynamo {
       magReq.enableSpectral();
       magReq.enablePhysical();
       magReq.enableCurl();
+
+      // Add temperature to requirements: is scalar?
+      auto& tempReq = this->mRequirements.addField(PhysicalNames::Temperature::id(), FieldRequirement(true, ss.spectral(), ss.physical()));
+      tempReq.enableSpectral();
+      tempReq.enablePhysical();
       assert(this->mRequirements.field(PhysicalNames::Velocity::id()).needSpectral());
       assert(this->mRequirements.field(PhysicalNames::Velocity::id()).needPhysical());
       assert(this->mRequirements.field(PhysicalNames::Velocity::id()).needPhysicalCurl());
