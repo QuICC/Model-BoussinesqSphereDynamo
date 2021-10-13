@@ -68,6 +68,7 @@ namespace Kernel {
    void TransportKernelHeat::setMesh(std::shared_ptr<std::vector<Array> > spMesh)
    {
       IPhysicalKernel::setMesh(spMesh);
+
       this->mRadius = this->mspMesh->at(0);
    }
 
