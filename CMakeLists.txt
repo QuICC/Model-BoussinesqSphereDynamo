@@ -3,6 +3,12 @@ get_filename_component(modName ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(TOLOWER "quicc_${modName}" QUICC_CURRENT_MODEL_LIB)
 set(modImpls "Explicit" "Implicit")
 
+set(_broken "Tubular" "Single1D")
+list(FIND _broken ${QUICC_MPIALGO} _pos)
+if(NOT _pos EQUAL -1)
+  list(REMOVE_ITEM modImpls "Implicit")
+endif()
+
 function(quicc_model_id impl id)
   set(ModelId
     "Boussinesq/Sphere/Dynamo/${impl}")
@@ -13,7 +19,7 @@ endfunction()
 set(QUICC_CMAKE_SRC_VISIBILITY PRIVATE)
 
 # Setup generic model library
-quicc_add_library(${QUICC_CURRENT_MODEL_LIB} "")
+add_library(${QUICC_CURRENT_MODEL_LIB} "")
 set_target_properties(${QUICC_CURRENT_MODEL_LIB} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${QUICC_CURRENT_MODEL_LIB} PUBLIC
   include/
@@ -25,7 +31,7 @@ target_link_libraries(${QUICC_CURRENT_MODEL_LIB} PUBLIC
 # Create model implementations libraries
 foreach(impl ${modImpls})
   string(TOLOWER "${QUICC_CURRENT_MODEL_LIB}_${impl}" modLib)
-  quicc_add_library(${modLib} "")
+  add_library(${modLib} "")
   set_target_properties(${modLib} PROPERTIES LINKER_LANGUAGE CXX)
   target_include_directories(${modLib} PUBLIC
     include/
