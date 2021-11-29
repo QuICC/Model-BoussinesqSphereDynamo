@@ -50,6 +50,11 @@ namespace Dynamo {
          virtual ~Momentum();
 
          /**
+          * @brief Initialize constraint kernel
+          */
+         virtual void initConstraintKernel();
+
+         /**
           * @brief Initialize nonlinear interaction kernel
           */
          virtual void initNLKernel(const bool force = false);
