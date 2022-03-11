@@ -40,9 +40,12 @@
 #include "QuICC/Io/Variable/SphereScalarEnergyWriter.hpp"
 #include "QuICC/Io/Variable/SphereScalarLSpectrumWriter.hpp"
 #include "QuICC/Io/Variable/SphereScalarMSpectrumWriter.hpp"
+#include "QuICC/Io/Variable/SphereScalarNSpectrumWriter.hpp"
 #include "QuICC/Io/Variable/SphereTorPolEnergyWriter.hpp"
 #include "QuICC/Io/Variable/SphereTorPolLSpectrumWriter.hpp"
 #include "QuICC/Io/Variable/SphereTorPolMSpectrumWriter.hpp"
+#include "QuICC/Io/Variable/SphereTorPolNSpectrumWriter.hpp"
+#include "QuICC/Io/Variable/SphereAngularMomentumWriter.hpp"
 #include "QuICC/Generator/States/RandomScalarState.hpp"
 #include "QuICC/Generator/States/RandomVectorState.hpp"
 #include "QuICC/Generator/States/SphereExactScalarState.hpp"
@@ -349,18 +352,29 @@ namespace Dynamo {
       spTemp->expect(PhysicalNames::Temperature::id());
       spSim->addAsciiOutputFile(spTemp);
 
-#if 0
+#if 1
       // Create temperature L energy spectrum writer
       auto spTempL = std::make_shared<Io::Variable::SphereScalarLSpectrumWriter>("temperature", spSim->ss().tag());
       spTempL->expect(PhysicalNames::Temperature::id());
-      //spTempL->numberOutput();
+      spTempL->numberOutput();
+      spTempL->onlyEvery(100);
       spSim->addAsciiOutputFile(spTempL);
 
       // Create temperature M energy spectrum writer
       auto spTempM = std::make_shared<Io::Variable::SphereScalarMSpectrumWriter>("temperature", spSim->ss().tag());
       spTempM->expect(PhysicalNames::Temperature::id());
-      //spTempM->numberOutput();
+      spTempM->numberOutput();
+      spTempM->onlyEvery(100);
       spSim->addAsciiOutputFile(spTempM);
+#endif
+
+#if 1
+      // Create temperature N power spectrum writer
+      auto spTempN = std::make_shared<Io::Variable::SphereScalarNSpectrumWriter>("temperature", spSim->ss().tag());
+      spTempN->expect(PhysicalNames::Temperature::id());
+      spTempN->numberOutput();
+      spTempN->onlyEvery(100);
+      spSim->addAsciiOutputFile(spTempN);
 #endif
 
       // Create kinetic energy writer
@@ -368,18 +382,29 @@ namespace Dynamo {
       spKinetic->expect(PhysicalNames::Velocity::id());
       spSim->addAsciiOutputFile(spKinetic);
 
-#if 0
+#if 1
       // Create kinetic L energy spectrum writer
       auto spKineticL = std::make_shared<Io::Variable::SphereTorPolLSpectrumWriter>("kinetic", spSim->ss().tag());
       spKineticL->expect(PhysicalNames::Velocity::id());
-      //spKineticL->numberOutput();
+      spKineticL->numberOutput();
+      spKineticL->onlyEvery(100);
       spSim->addAsciiOutputFile(spKineticL);
 
       // Create kinetic M energy spectrum writer
       auto spKineticM = std::make_shared<Io::Variable::SphereTorPolMSpectrumWriter>("kinetic", spSim->ss().tag());
       spKineticM->expect(PhysicalNames::Velocity::id());
-      //spKineticM->numberOutput();
+      spKineticM->numberOutput();
+      spKineticM->onlyEvery(100);
       spSim->addAsciiOutputFile(spKineticM);
+#endif
+
+#if 1
+      // Create kinetic N power spectrum writer
+      auto spKineticN = std::make_shared<Io::Variable::SphereTorPolNSpectrumWriter>("kinetic", spSim->ss().tag());
+      spKineticN->expect(PhysicalNames::Velocity::id());
+      spKineticN->numberOutput();
+      spKineticN->onlyEvery(100);
+      spSim->addAsciiOutputFile(spKineticN);
 #endif
 
       // Create magnetic energy writer
@@ -387,18 +412,36 @@ namespace Dynamo {
       spMagnetic->expect(PhysicalNames::Magnetic::id());
       spSim->addAsciiOutputFile(spMagnetic);
 
-#if 0
+#if 1
       // Create magnetic L energy spectrum writer
       auto spMagneticL = std::make_shared<Io::Variable::SphereTorPolLSpectrumWriter>("magnetic", spSim->ss().tag());
       spMagneticL->expect(PhysicalNames::Magnetic::id());
-      //spMagneticL->numberOutput();
+      spMagneticL->numberOutput();
+      spMagneticL->onlyEvery(100);
       spSim->addAsciiOutputFile(spMagneticL);
 
       // Create magnetic M energy spectrum writer
       auto spMagneticM = std::make_shared<Io::Variable::SphereTorPolMSpectrumWriter>("magnetic", spSim->ss().tag());
       spMagneticM->expect(PhysicalNames::Magnetic::id());
-      //spMagneticM->numberOutput();
+      spMagneticM->numberOutput();
+      spMagneticM->onlyEvery(100);
       spSim->addAsciiOutputFile(spMagneticM);
+#endif
+
+#if 1
+      // Create kinetic N power spectrum writer
+      auto spMagneticN = std::make_shared<Io::Variable::SphereTorPolNSpectrumWriter>("magnetic", spSim->ss().tag());
+      spMagneticN->expect(PhysicalNames::Magnetic::id());
+      spMagneticN->numberOutput();
+      spMagneticN->onlyEvery(100);
+      spSim->addAsciiOutputFile(spMagneticN);
+#endif
+
+#if 1
+      // Create angular momentum writer
+      auto spAngMom = std::make_shared<Io::Variable::SphereAngularMomentumWriter>("", spSim->ss().tag());
+      spAngMom->expect(PhysicalNames::Velocity::id());
+      spSim->addAsciiOutputFile(spAngMom);
 #endif
    }
 
