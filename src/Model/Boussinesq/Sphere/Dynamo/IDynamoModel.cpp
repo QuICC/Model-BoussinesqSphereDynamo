@@ -340,6 +340,39 @@ namespace Dynamo {
       spVis->addHdf5OutputFile(spOut);
    }
 
+   std::map<std::string, std::map<std::string,int> > IDynamoModel::configTags() const
+   {
+      std::map<std::string,int> onOff;
+      onOff.emplace("enable", 1);
+
+      std::map<std::string,int> options;
+      options.emplace("enable", 0);
+      options.emplace("numbered", 0);
+      options.emplace("only_every", 1);
+
+      std::map<std::string,std::map<std::string,int> > tags;
+      // temperature
+      tags.emplace("temperature_energy", onOff);
+      tags.emplace("temperature_l_spectrum", options);
+      tags.emplace("temperature_m_spectrum", options);
+      tags.emplace("temperature_n_spectrum", options);
+      // kinetic
+      tags.emplace("kinetic_energy", onOff);
+      tags.emplace("kinetic_l_spectrum", options);
+      tags.emplace("kinetic_m_spectrum", options);
+      tags.emplace("kinetic_n_spectrum", options);
+      // magnetic
+      tags.emplace("magnetic_energy", onOff);
+      tags.emplace("magnetic_l_spectrum", options);
+      tags.emplace("magnetic_m_spectrum", options);
+      tags.emplace("magnetic_n_spectrum", options);
+      // diagnostic
+      tags.emplace("angular_momentum", onOff);
+      tags.emplace("nusselt", onOff);
+
+      return tags;
+   }
+
    void IDynamoModel::addAsciiOutputFiles(SharedSimulation spSim)
    {
       // Create Nusselt writer
