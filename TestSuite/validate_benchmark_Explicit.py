@@ -6,66 +6,35 @@ ref_dir, data_dir = vt.processArgv(sys.argv[1:])
 
 results = np.zeros(2, dtype='i8')
 
-# Tolerance for long run
-long_tol = 11*1e8
+# Tolerance per max rows
+rows = [0, 10, 20, 100]
+tols = [101, 101, 101, 1e3]
 
-# Tolerance for short run
-short_rows = 20
-short_tol = 101
+prefixes = ['temperature', 'kinetic', 'magnetic']
+spectra = ['l', 'm', 'n']
 
-# Temperature
-#   Energy
-results += vt.tableTest("temperature_energy.dat", ref_dir, data_dir, tol = short_tol, max_rows = short_rows)
-results += vt.tableTest("temperature_energy.dat", ref_dir, data_dir, tol = long_tol)
-#   L spectrum
-results += vt.tableTest("temperature_l_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("temperature_l_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   M spectrum
-results += vt.tableTest("temperature_m_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("temperature_m_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   M spectrum
-results += vt.tableTest("temperature_n_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("temperature_n_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
+# check energy and spectra
+for prefix in prefixes:
+    # Energy
+    for r, t in zip(rows,tols):
+        results += vt.tableTest(prefix + '_energy.dat', ref_dir, data_dir, tol = t, max_rows = r+1)
 
-# Kinetic
-#   energy
-results += vt.tableTest("kinetic_energy.dat", ref_dir, data_dir, tol = short_tol, max_rows = short_rows)
-#results += vt.tableTest("kinetic_energy.dat", ref_dir, data_dir, tol = long_tol)
-#   L spectrum
-results += vt.tableTest("kinetic_l_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("kinetic_l_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   M spectrum
-results += vt.tableTest("kinetic_m_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("kinetic_m_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   N spectrum
-results += vt.tableTest("kinetic_n_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("kinetic_n_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-
-# Magnetic
-#   energy
-results += vt.tableTest("magnetic_energy.dat", ref_dir, data_dir, tol = short_tol, max_rows = short_rows)
-#results += vt.tableTest("magnetic_energy.dat", ref_dir, data_dir, tol = long_tol)
-#   L spectrum
-results += vt.tableTest("magnetic_l_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("magnetic_l_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   M spectrum
-results += vt.tableTest("magnetic_m_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("magnetic_m_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
-#   N spectrum
-results += vt.tableTest("magnetic_n_spectrum0000.dat", ref_dir, data_dir, tol = short_tol)
-results += vt.tableTest("magnetic_n_spectrum0100.dat", ref_dir, data_dir, tol = long_tol, percol = True)
+    # Spectra
+    for mode in spectra:
+        for r, t in zip(rows,tols):
+            results += vt.tableTest(prefix +  '_' + mode + f'_spectrum{r:04}.dat', ref_dir, data_dir, tol = t, percol = True)
 
 # Nusselt number
-results += vt.tableTest("nusselt.dat", ref_dir, data_dir, tol = short_tol, max_rows = short_rows)
-#results += vt.tableTest("nusselt.dat", ref_dir, data_dir, tol = short_tol)
-
-# Angular momentum
-#results += vt.tableTest("angular_momentum.dat", ref_dir, data_dir, tol = short_tol, max_rows = short_rows)
-#results += vt.tableTest("angular_momentum.dat", ref_dir, data_dir, tol = long_tol)
+for r, t in zip(rows,tols):
+    results += vt.tableTest("nusselt.dat", ref_dir, data_dir, tol = t, max_rows = r+1)
 
 # CFL
-results += vt.tableTest("cfl.dat", ref_dir, data_dir, usecols=(0,1,3,5,6,7,8,9), tol = short_tol, max_rows = short_rows)
-#results += vt.tableTest("cfl.dat", ref_dir, data_dir, usecols=(0,1,3,5,6,7,8,9), tol = long_tol)
+for r, t in zip(rows,tols):
+    results += vt.tableTest("cfl.dat", ref_dir, data_dir, usecols=(0,1,3,5,6,7,8,9), tol = t, max_rows = r+1)
+
+# Angular momentum
+#for r, t in zip(rows,tols):
+#    results += vt.tableTest("angular_momentum.dat", ref_dir, data_dir, tol = t, max_rows = r+1)
 
 # Output test summary
 vt.printSummary(results)

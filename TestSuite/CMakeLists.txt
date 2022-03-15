@@ -11,6 +11,7 @@ set(_benchmarkTarget "Benchmark${_benchmarkExe}")
 
 set(_refdir "${QUICC_WORK_DIR}/_refdata/${_impl}")
 set(_rundir "${QUICC_WORK_DIR}/_data/${_impl}")
+set(_toolsdir "${PROJECT_SOURCE_DIR}/${QUICC_MODEL_PATH}/TestSuite")
 add_custom_target(${_benchmarkTarget} ALL
   COMMAND ${CMAKE_COMMAND} -E create_symlink
     "${_refdir}/parameters.cfg"
@@ -22,10 +23,10 @@ add_custom_target(${_benchmarkTarget} ALL
     "${CMAKE_CURRENT_SOURCE_DIR}/validate_benchmark_${_impl}.py"
     "${_rundir}/validate_benchmark.py"
   COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_CURRENT_SOURCE_DIR}/colorcodes.py"
+    "${_toolsdir}/colorcodes.py"
     "${_rundir}/"
   COMMAND ${CMAKE_COMMAND} -E copy
-    "${CMAKE_CURRENT_SOURCE_DIR}/validation_tools.py"
+    "${_toolsdir}/validation_tools.py"
     "${_rundir}/"
   )
 add_dependencies(${_benchmarkTarget} ${_benchmarkExe})
