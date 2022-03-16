@@ -9,7 +9,7 @@ results = []
 # Tolerance per max rows
 rows = list(range(0, 101, 10))
 tols = [51, 61, 81, 141, 201, 261, 301, 331, 451, 491, 501] # Without n spectra
-tols = [61, 81, 111, 191, 221, 271, 311, 381, 451, 491, 501] # With n spectra
+tols = [61, 81, 111, 191, 221, 271, 311, 381, 461, 541, 571] # With n spectra
 
 prefixes = ['temperature', 'kinetic', 'magnetic']
 spectra = ['l', 'm', 'n']
