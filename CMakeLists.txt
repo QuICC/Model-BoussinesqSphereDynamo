@@ -1,7 +1,10 @@
 # Set Model name and library name
 get_filename_component(modName ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+set(QUICC_CURRENT_MODEL_DIR "Models/${modName}")
 string(TOLOWER "quicc_${modName}" QUICC_CURRENT_MODEL_LIB)
 set(modImpls "Explicit" "Implicit")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake.d")
 
 set(_broken "Tubular" "Single1D")
 list(FIND _broken ${QUICC_MPIALGO} _pos)
@@ -67,3 +70,6 @@ unset(QUICC_CURRENT_MODEL_LIB)
 unset(modName)
 unset(modImpls)
 unset(modLib)
+
+# Teststuite
+include(setup/TestSuite)
