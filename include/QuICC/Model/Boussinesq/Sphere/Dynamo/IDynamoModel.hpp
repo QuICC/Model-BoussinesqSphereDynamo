@@ -80,6 +80,11 @@ namespace Dynamo {
           */
          virtual void addAsciiOutputFiles(SharedSimulation spSim) override;
 
+         /**
+          * @brief XML configuration tags
+          */
+         virtual std::map<std::string, std::map<std::string,int> > configTags() const override;
+
       protected:
 
       private:
