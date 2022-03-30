@@ -1,4 +1,4 @@
 include(ConfigureModel)
 quicc_add_model(Boussinesq/Sphere/Dynamo
-  MODIMPLS Explicit Implicit
+  TYPES Explicit Implicit
   BROKENMPI Tubular Single1D)
