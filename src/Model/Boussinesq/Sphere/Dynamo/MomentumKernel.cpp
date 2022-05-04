@@ -86,7 +86,7 @@ namespace Kernel {
    {
       IPhysicalKernel::setMesh(spMesh);
 
-      this->mRadius = spMesh->at(0);
+      this->mRadius = this->mspMesh->at(0);
 
       if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
