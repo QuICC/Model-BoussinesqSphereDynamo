@@ -94,6 +94,7 @@ namespace Dynamo {
          MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
          auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
          spNLKernel->setVelocity(this->name(), this->spUnknown());
+         spNLKernel->setTemperature(PhysicalNames::Temperature::id(), this->spScalar(PhysicalNames::Temperature::id()));
          spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
          spNLKernel->init(1.0, T*Pm, Pm*Pm*Ra*T/Pr, T*Pm);
          this->mspNLKernel = spNLKernel;
