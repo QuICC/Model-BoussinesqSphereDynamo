@@ -20,8 +20,11 @@
 //
 #include "QuICC/Typedefs.hpp"
 #include "QuICC/Math/Constants.hpp"
+#include "QuICC/NonDimensional/Rayleigh.hpp"
+#include "QuICC/NonDimensional/Prandtl.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
 #include "QuICC/NonDimensional/MagPrandtl.hpp"
+#include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
@@ -86,11 +89,13 @@ namespace Dynamo {
       {
          // Initialize the physical kernel
          MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
+         MHDFloat Ra = 1.0/this->eqParams().nd(NonDimensional::Rayleigh::id());
+         MHDFloat Pr = 1.0/this->eqParams().nd(NonDimensional::Prandtl::id());
          MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
          auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
          spNLKernel->setVelocity(this->name(), this->spUnknown());
          spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
-         spNLKernel->init(1.0, T*Pm, T*Pm);
+         spNLKernel->init(1.0, T*Pm, Pm*Pm*Ra*T/Pr, T*Pm);
          this->mspNLKernel = spNLKernel;
       }
    }
@@ -127,6 +132,11 @@ namespace Dynamo {
       velReq.enableSpectral();
       velReq.enablePhysical();
       velReq.enableCurl();
+
+      // Add velocity to requirements: is scalar?
+      auto& tempReq = this->mRequirements.addField(PhysicalNames::Temperature::id(), FieldRequirement(true, ss.spectral(), ss.physical()));
+      tempReq.enableSpectral();
+      tempReq.enablePhysical();
 
       // Add magnetic to requirements: is scalar?
       auto& magReq = this->mRequirements.addField(PhysicalNames::Magnetic::id(), FieldRequirement(false, ss.spectral(), ss.physical()));

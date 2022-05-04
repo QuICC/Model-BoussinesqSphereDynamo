@@ -52,18 +52,23 @@ namespace Dynamo {
          /**
           * @brief Initialize nonlinear interaction kernel
           */
-         virtual void initNLKernel(const bool force = false);
+         virtual void initNLKernel(const bool force = false) override;
 
       protected:
          /**
+          * @brief Set nonlinear component path
+          */
+         virtual void setNLComponents() override;
+
+         /**
           * @brief Set variable requirements
           */
-         virtual void setRequirements();
+         virtual void setRequirements() override;
 
          /**
           * @brief Set the equation coupling information
           */
-         virtual void setCoupling();
+         virtual void setCoupling() override;
 
       private:
    };

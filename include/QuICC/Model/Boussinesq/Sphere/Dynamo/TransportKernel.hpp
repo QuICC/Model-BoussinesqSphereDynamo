@@ -46,6 +46,11 @@ namespace Kernel {
          virtual ~TransportKernel();
 
          /**
+          * @brief Set the physical mesh on which kernel is working
+          */
+         virtual void setMesh(std::shared_ptr<std::vector<Array> > spMesh) override;
+
+         /**
           * @brief Set the smart pointer to the scalar field
           *
           * \param name Name of the field
@@ -95,6 +100,11 @@ namespace Kernel {
           * @brief Scaling constant for transport term
           */
          MHDFloat mTransport;
+
+         /**
+          * @brief Storage for radial grid values
+          */
+         Array mRadius;
 
    };
 

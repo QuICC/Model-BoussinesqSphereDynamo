@@ -54,6 +54,11 @@ namespace Dynamo {
       this->defineCoupling(FieldComponents::Spectral::SCALAR, CouplingInformation::PROGNOSTIC, 0, features);
    }
 
+   void Transport::setNLComponents()
+   {
+      this->addNLComponent(FieldComponents::Spectral::SCALAR, 1);
+   }
+
    void Transport::initNLKernel(const bool force)
    {
       // Initialize if empty or forced
