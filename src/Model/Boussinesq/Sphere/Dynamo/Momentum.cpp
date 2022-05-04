@@ -96,7 +96,7 @@ namespace Dynamo {
          spNLKernel->setVelocity(this->name(), this->spUnknown());
          spNLKernel->setTemperature(PhysicalNames::Temperature::id(), this->spScalar(PhysicalNames::Temperature::id()));
          spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
-         spNLKernel->init(1.0, T*Pm, 0*Pm*Pm*Ra*T/Pr, T*Pm);
+         spNLKernel->init(1.0, T*Pm, Pm*Pm*Ra*T/Pr, T*Pm);
          this->mspNLKernel = spNLKernel;
       }
    }

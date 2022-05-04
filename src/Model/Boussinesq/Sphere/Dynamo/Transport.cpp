@@ -56,7 +56,7 @@ namespace Dynamo {
 
    void Transport::setNLComponents()
    {
-      this->addNLComponent(FieldComponents::Spectral::SCALAR, 0);
+      this->addNLComponent(FieldComponents::Spectral::SCALAR, 1);
    }
 
    void Transport::initNLKernel(const bool force)
