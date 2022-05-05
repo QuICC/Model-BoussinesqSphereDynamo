@@ -58,7 +58,6 @@ class PhysicalModel(base_model.BaseModel):
         if timing == self.EXPLICIT_LINEAR:
             if field_row == ("velocity","pol"):
                 fields = [("temperature","")]
-                fields = []
             elif field_row == ("temperature",""):
                 fields = [("velocity","pol")]
             else:
