@@ -136,7 +136,7 @@ namespace Dynamo {
       velReq.enablePhysical();
       velReq.enableCurl();
 
-      // Add velocity to requirements: is scalar?
+      // Add temperature to requirements: is scalar?
       auto& tempReq = this->mRequirements.addField(PhysicalNames::Temperature::id(), FieldRequirement(true, ss.spectral(), ss.physical()));
       tempReq.enableSpectral();
       tempReq.enablePhysical();
