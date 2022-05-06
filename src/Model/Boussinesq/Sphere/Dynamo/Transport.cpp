@@ -23,6 +23,7 @@
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
+#include "QuICC/Transform/Path/I2ScalarNL.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 
 namespace QuICC {
@@ -56,7 +57,7 @@ namespace Dynamo {
 
    void Transport::setNLComponents()
    {
-      this->addNLComponent(FieldComponents::Spectral::SCALAR, 1);
+      this->addNLComponent(FieldComponents::Spectral::SCALAR, Transform::Path::I2ScalarNL::id());
    }
 
    void Transport::initNLKernel(const bool force)
