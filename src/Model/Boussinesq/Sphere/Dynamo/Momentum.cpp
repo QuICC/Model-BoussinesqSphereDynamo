@@ -20,13 +20,18 @@
 //
 #include "QuICC/Typedefs.hpp"
 #include "QuICC/Math/Constants.hpp"
+#include "QuICC/NonDimensional/Rayleigh.hpp"
+#include "QuICC/NonDimensional/Prandtl.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
 #include "QuICC/NonDimensional/MagPrandtl.hpp"
+#include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/SpectralKernels/Sphere/ConserveAngularMomentum.hpp"
+#include "QuICC/Transform/Path/I2CurlNL.hpp"
+#include "QuICC/Transform/Path/I4CurlCurlNL.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 
 namespace QuICC {
@@ -74,9 +79,9 @@ namespace Dynamo {
 
    void Momentum::setNLComponents()
    {
-      this->addNLComponent(FieldComponents::Spectral::TOR, 0);
+      this->addNLComponent(FieldComponents::Spectral::TOR, Transform::Path::I2CurlNL::id());
 
-      this->addNLComponent(FieldComponents::Spectral::POL, 0);
+      this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::I4CurlCurlNL::id());
    }
 
    void Momentum::initNLKernel(const bool force)
@@ -86,11 +91,14 @@ namespace Dynamo {
       {
          // Initialize the physical kernel
          MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
+         MHDFloat Ra = this->eqParams().nd(NonDimensional::Rayleigh::id());
+         MHDFloat Pr = this->eqParams().nd(NonDimensional::Prandtl::id());
          MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
          auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
          spNLKernel->setVelocity(this->name(), this->spUnknown());
+         spNLKernel->setTemperature(PhysicalNames::Temperature::id(), this->spScalar(PhysicalNames::Temperature::id()));
          spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
-         spNLKernel->init(1.0, T*Pm, T*Pm);
+         spNLKernel->init(1.0, T*Pm, Pm*Pm*Ra*T/Pr, T*Pm);
          this->mspNLKernel = spNLKernel;
       }
    }
@@ -127,6 +135,11 @@ namespace Dynamo {
       velReq.enableSpectral();
       velReq.enablePhysical();
       velReq.enableCurl();
+
+      // Add temperature to requirements: is scalar?
+      auto& tempReq = this->mRequirements.addField(PhysicalNames::Temperature::id(), FieldRequirement(true, ss.spectral(), ss.physical()));
+      tempReq.enableSpectral();
+      tempReq.enablePhysical();
 
       // Add magnetic to requirements: is scalar?
       auto& magReq = this->mRequirements.addField(PhysicalNames::Magnetic::id(), FieldRequirement(false, ss.spectral(), ss.physical()));

@@ -21,6 +21,7 @@
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/PhysicalOperators/Cross.hpp"
 #include "QuICC/PhysicalOperators/SphericalCoriolis.hpp"
+#include "QuICC/PhysicalOperators/SphericalBuoyancy.hpp"
 
 namespace QuICC {
 
@@ -62,17 +63,30 @@ namespace Kernel {
       this->setField(name, spField);
    }
 
-   void MomentumKernel::init(const MHDFloat inertia, const MHDFloat coriolis, const MHDFloat lorentz)
+   void MomentumKernel::setTemperature(std::size_t name, Framework::Selector::VariantSharedScalarVariable spField)
+   {
+      // Safety assertion
+      assert(this->mScalars.count(name) + this->mVectors.count(name) == 0);
+
+      this->mTempName = name;
+
+      this->setField(name, spField);
+   }
+
+   void MomentumKernel::init(const MHDFloat inertia, const MHDFloat coriolis, const MHDFloat buoyancy, const MHDFloat lorentz)
    {
       // Set scaling constants
       this->mInertia = inertia;
       this->mCoriolis = coriolis;
       this->mLorentz = lorentz;
+      this->mBuoyancy = buoyancy;
    }
 
    void MomentumKernel::setMesh(std::shared_ptr<std::vector<Array> > spMesh)
    {
       IPhysicalKernel::setMesh(spMesh);
+
+      this->mRadius = this->mspMesh->at(0);
 
       if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
@@ -104,6 +118,8 @@ namespace Kernel {
             assert(false);
             break;
       }
+
+      std::visit([&](auto&& s){Physical::SphericalBuoyancy::sub(rNLComp, id, s->dom(0).res(), this->mRadius, s->dom(0).phys(), this->mBuoyancy);}, this->scalar(this->mTempName));
 
       if(std::visit([&](auto&& v)->bool{return (v->dom(0).res().sim().ss().has(SpatialScheme::Feature::SpectralOrdering132));},this->vector(this->name())))
       {
