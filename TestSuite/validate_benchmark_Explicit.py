@@ -8,7 +8,7 @@ results = []
 
 # Tolerance per max rows
 rows = list(range(0, 101, 10))
-tols = [26, 64, 82, 123, 153, 162, 203, 204, 254, 255, 305]
+tols = [51, 64, 82, 123, 153, 162, 203, 204, 254, 255, 305]
 
 prefixes = ['temperature', 'kinetic', 'magnetic']
 spectra = ['l', 'm', 'n']
@@ -37,4 +37,4 @@ for r, t in zip(rows,tols):
 #    results.append(vt.tableTest("angular_momentum.dat", ref_dir, data_dir, r, tol = t, max_rows = r+1))
 
 # Output test summary
-vt.printSummary(results, rows)
+vt.printSummary(results, rows, tols)
