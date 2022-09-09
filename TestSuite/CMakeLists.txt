@@ -10,5 +10,5 @@ quicc_add_benchmark(Implicit
   WORKDIR "${CMAKE_BINARY_DIR}/${QUICC_CURRENT_MODEL_DIR}/TestSuite/Benchmarks"
   ARCHIVEDIR "${CMAKE_BINARY_DIR}/Models/_refdata"
   VARIANTS "framework/parallel/algorithm:single2d"
-  GITTAG add/shelldynamo_implicit
+  GITTAG add/dynamo_implicit
   )
