@@ -6,7 +6,7 @@ quicc_add_benchmark(Explicit
   )
 
 quicc_add_benchmark(Implicit
-  MODEL "BoussinesqShellDynamo"
+  MODEL "BoussinesqSphereDynamo"
   WORKDIR "${CMAKE_BINARY_DIR}/${QUICC_CURRENT_MODEL_DIR}/TestSuite/Benchmarks"
   ARCHIVEDIR "${CMAKE_BINARY_DIR}/Models/_refdata"
   VARIANTS "framework/parallel/algorithm:single2d"
