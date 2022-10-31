@@ -161,12 +161,16 @@ class PhysicalModel(base_model.BaseModel):
                         bc = {0:-12, 'rt':0}
                     elif field_col == ("velocity","pol"):
                         bc = {0:-21, 'rt':0}
+                    elif field_col == ("temperature",""):
+                        bc = {0:-11, 'rt':0}
 
                 else:
                     if field_row == ("velocity","tor") and field_col == field_row:
                             bc = {0:12}
                     elif field_row == ("velocity","pol") and field_col == field_row:
                             bc = {0:21}
+                    elif field_row == ("temperature","") and field_col == field_row:
+                        bc = {0:11}
 
             # Set LHS galerkin restriction
             if self.use_galerkin:
@@ -202,6 +206,8 @@ class PhysicalModel(base_model.BaseModel):
                         bc = {0:-12, 'rt':1}
                     elif field_col == ("velocity","pol"):
                         bc = {0:-21, 'rt':2}
+                    elif field_col == ("temperature",""):
+                        bc = {0:-11, 'rt':1}
 
         # Field values to RHS:
         elif bcs["bcType"] == self.FIELD_TO_RHS:
