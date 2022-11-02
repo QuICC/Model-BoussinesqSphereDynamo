@@ -23,7 +23,7 @@
 #include "QuICC/NonDimensional/Rayleigh.hpp"
 #include "QuICC/NonDimensional/Prandtl.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
-#include "QuICC/NonDimensional/MagPrandtl.hpp"
+#include "QuICC/NonDimensional/MagneticPrandtl.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
@@ -93,7 +93,7 @@ namespace Dynamo {
          MHDFloat T = 1.0/this->eqParams().nd(NonDimensional::Ekman::id());
          MHDFloat Ra = this->eqParams().nd(NonDimensional::Rayleigh::id());
          MHDFloat Pr = this->eqParams().nd(NonDimensional::Prandtl::id());
-         MHDFloat Pm = this->eqParams().nd(NonDimensional::MagPrandtl::id());
+         MHDFloat Pm = this->eqParams().nd(NonDimensional::MagneticPrandtl::id());
          auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
          spNLKernel->setVelocity(this->name(), this->spUnknown());
          spNLKernel->setTemperature(PhysicalNames::Temperature::id(), this->spScalar(PhysicalNames::Temperature::id()));
