@@ -24,8 +24,8 @@
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
-#include "QuICC/Transform/Path/I2CurlNL.hpp"
-#include "QuICC/Transform/Path/I2CurlCurlNL.hpp"
+#include "QuICC/Transform/Path/I2CurlNl.hpp"
+#include "QuICC/Transform/Path/I2CurlCurlNl.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 
 namespace QuICC {
@@ -73,9 +73,9 @@ namespace Dynamo {
 
    void Induction::setNLComponents()
    {
-      this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::I2CurlNL::id());
+      this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::I2CurlNl::id());
 
-      this->addNLComponent(FieldComponents::Spectral::TOR, Transform::Path::I2CurlCurlNL::id());
+      this->addNLComponent(FieldComponents::Spectral::TOR, Transform::Path::I2CurlCurlNl::id());
    }
 
    void Induction::initNLKernel(const bool force)
