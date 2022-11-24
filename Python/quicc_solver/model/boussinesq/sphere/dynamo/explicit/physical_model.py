@@ -302,19 +302,22 @@ class PhysicalModel(base_model.BaseModel):
         mat = None
         bc = self.convert_bc(eq_params,eigs,bcs,field_row,field_row)
         if field_row == ("velocity","tor"):
-            mat = geo.i2(res[0], l, bc)
+            mat = geo.i2(res[0], l, bc) - geo.i2(res[0], l, bc)*geo.qid(res[0], l, res[0]-1, {0:0})
 
         elif field_row == ("velocity","pol"):
-            mat = geo.i4lapl(res[0], l, bc)
+            corr_mat = spsp.lil_matrix((res[0],res[0]))
+            corr_mat[-2,-1] = geo.i4lapl(res[0]+1, l, {0:0}).todense()[-1,-2]/geo.i4(res[0]+1, l, {0:0}).tolil()[-1,-3]
+            corr_mat = corr_mat.tocoo()
+            mat = geo.i4lapl(res[0], l, bc) - geo.i4(res[0],l, {0:0})*corr_mat
 
         elif field_row == ("magnetic","tor"):
-            mat = geo.i2(res[0], l, bc)
+            mat = geo.i2(res[0], l, bc) - geo.i2(res[0], l, bc)*geo.qid(res[0], l, res[0]-1, {0:0})
 
         elif field_row == ("magnetic","pol"):
-            mat = geo.i2(res[0], l, bc)
+            mat = geo.i2(res[0], l, bc) - geo.i2(res[0], l, bc)*geo.qid(res[0], l, res[0]-1, {0:0})
 
         elif field_row == ("temperature",""):
-            mat = geo.i2(res[0], l, bc)
+            mat = geo.i2(res[0], l, bc) - geo.i2(res[0], l, bc)*geo.qid(res[0], l, res[0]-1, {0:0})
 
         if mat is None:
             raise RuntimeError("Equations are not setup properly!")
