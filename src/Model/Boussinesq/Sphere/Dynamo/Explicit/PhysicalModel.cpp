@@ -40,14 +40,14 @@ namespace Explicit {
 
    void PhysicalModel::init()
    {
-#if 0
-      IPhysicalPyModel<Simulation,StateGenerator,VisualizationGenerator>::init();
-
-      this->mpBackend = std::make_shared<PyModelBackend>(this->PYMODULE(), this->PYCLASS());
-#else
+#ifdef QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
       IPhysicalModel<Simulation,StateGenerator,VisualizationGenerator>::init();
 
       this->mpBackend = std::make_shared<ModelBackend>();
+#else
+      IPhysicalPyModel<Simulation,StateGenerator,VisualizationGenerator>::init();
+
+      this->mpBackend = std::make_shared<PyModelBackend>(this->PYMODULE(), this->PYCLASS());
 #endif
    }
 
