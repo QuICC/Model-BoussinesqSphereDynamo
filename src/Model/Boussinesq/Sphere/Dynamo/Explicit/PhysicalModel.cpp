@@ -15,6 +15,8 @@
 // Class include
 //
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/PhysicalModel.hpp"
+#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/ModelBackend.hpp"
+#include "QuICC/Model/PyModelBackend.hpp"
 
 // Project includes
 //
@@ -34,6 +36,19 @@ namespace Explicit {
    std::string PhysicalModel::PYMODULE()
    {
       return "boussinesq.sphere.dynamo.explicit.physical_model";
+   }
+
+   void PhysicalModel::init()
+   {
+#if 0
+      IPhysicalPyModel<Simulation,StateGenerator,VisualizationGenerator>::init();
+
+      this->mpBackend = std::make_shared<PyModelBackend>(this->PYMODULE(), this->PYCLASS());
+#else
+      IPhysicalModel<Simulation,StateGenerator,VisualizationGenerator>::init();
+
+      this->mpBackend = std::make_shared<ModelBackend>();
+#endif
    }
 
 }

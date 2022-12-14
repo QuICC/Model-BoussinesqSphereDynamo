@@ -1,4 +1,4 @@
-/** 
+/**
  * @file Induction.cpp
  * @brief Source of the implementation of the vector induction equation in the Boussinesq thermal convection dynamo in a sphere model
  */

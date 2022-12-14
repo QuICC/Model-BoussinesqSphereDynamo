@@ -1,4 +1,4 @@
-/** 
+/**
  * @file InductionKernel.cpp
  * @brief Source of physical space kernel for the Induction equation
  */

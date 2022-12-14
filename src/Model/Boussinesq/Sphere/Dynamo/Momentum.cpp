@@ -1,4 +1,4 @@
-/** 
+/**
  * @file Momentum.cpp
  * @brief Source of the implementation of the vector Navier-Stokes equation in the Boussinesq thermal convection dynamo in a sphere model
  */
