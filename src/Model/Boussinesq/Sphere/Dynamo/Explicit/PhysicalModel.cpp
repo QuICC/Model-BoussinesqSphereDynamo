@@ -3,24 +3,17 @@
  * @brief Source of the Boussinesq thermal convection dynamo in a sphere (Toroidal/Poloidal formulation) without coupled solve (standard implementation)
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
+// Project include
 //
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/PhysicalModel.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/ModelBackend.hpp"
 #include "QuICC/Model/PyModelBackend.hpp"
 
-// Project includes
-//
-
+// Force use of c++ backend
+#define QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
 namespace QuICC {
 
 namespace Model {
