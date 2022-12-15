@@ -72,7 +72,9 @@ namespace Explicit {
          virtual void enableGalerkin(const bool flag) override;
 
          /**
-          * @brief Get vector of bools about periodic box
+          * @brief Get auotmatically computed parameters based on input parameters
+          *
+          * @param cfg  Input parameters
           */
          virtual std::map<std::string,MHDFloat> automaticParameters(const std::map<std::string,MHDFloat>& cfg) const override;
 
