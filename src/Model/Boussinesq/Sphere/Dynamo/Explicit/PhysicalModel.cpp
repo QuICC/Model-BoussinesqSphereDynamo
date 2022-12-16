@@ -14,6 +14,7 @@
 
 // Force use of c++ backend
 #define QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
+
 namespace QuICC {
 
 namespace Model {
@@ -44,9 +45,9 @@ namespace Explicit {
 #endif
    }
 
-}
-}
-}
-}
-}
-}
+} // Explicit
+} // Dynamo
+} // Sphere
+} // Boussinesq
+} // Model
+} // QuICC
