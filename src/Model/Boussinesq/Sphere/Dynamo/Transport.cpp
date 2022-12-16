@@ -1,4 +1,4 @@
-/** 
+/**
  * @file Transport.cpp
  * @brief Source of the implementation of the transport equation in the Boussinesq thermal convection dynamo in a sphere
  */

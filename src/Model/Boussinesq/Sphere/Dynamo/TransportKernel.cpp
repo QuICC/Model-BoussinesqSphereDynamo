@@ -1,4 +1,4 @@
-/** 
+/**
  * @file TransportKernel.cpp
  * @brief Source of physical space kernel for the Transport equation
  */
@@ -77,7 +77,7 @@ namespace Kernel {
       // Assert on scalar component is used
       assert(id == FieldComponents::Physical::SCALAR);
 
-      /// 
+      ///
       /// Computation of the advection:
       ///   \f$ \left(\vec u\cdot\nabla\right)\theta\f$
       ///
