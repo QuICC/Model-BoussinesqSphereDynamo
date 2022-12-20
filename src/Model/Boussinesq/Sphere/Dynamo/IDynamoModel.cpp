@@ -21,6 +21,7 @@
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/gitHash.hpp"
 #include "QuICC/Enums/FieldIds.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
@@ -71,6 +72,11 @@ namespace Dynamo {
    VectorFormulation::Id IDynamoModel::SchemeFormulation()
    {
       return VectorFormulation::TORPOL;
+   }
+
+   std::string IDynamoModel::version() const
+   {
+      return std::string(gitHash);
    }
 
    void IDynamoModel::addEquations(SharedSimulation spSim)

@@ -53,6 +53,11 @@ namespace Dynamo {
          virtual VectorFormulation::Id SchemeFormulation() override;
 
          /**
+          * @brief Version string
+          */
+         std::string version() const final;
+
+         /**
           * @brief Add the required equations
           *
           * @param spSim   Shared simulation object
