@@ -6,20 +6,9 @@
 #ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_PHYSICALMODEL_HPP
 #define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_PHYSICALMODEL_HPP
 
-// Model version
-#define QUICC_VERSION_MODEL_MAJOR 1
-#define QUICC_VERSION_MODEL_MINOR 0
-#define QUICC_VERSION_MODEL_PATCH 0
-
-// Configuration includes
-//
-
 // System includes
 //
 #include <string>
-
-// External includes
-//
 
 // Project includes
 //
