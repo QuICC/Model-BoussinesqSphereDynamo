@@ -12,9 +12,6 @@
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/Explicit/ModelBackend.hpp"
 #include "QuICC/Model/PyModelBackend.hpp"
 
-// Force use of c++ backend
-#define QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
-
 namespace QuICC {
 
 namespace Model {
