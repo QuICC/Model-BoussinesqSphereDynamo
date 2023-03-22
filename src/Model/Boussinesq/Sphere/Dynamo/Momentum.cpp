@@ -33,6 +33,7 @@
 #include "QuICC/SpectralKernels/Sphere/ConserveAngularMomentum.hpp"
 #include "QuICC/Transform/Path/I2CurlNl.hpp"
 #include "QuICC/Transform/Path/NegI2CurlCurlNl.hpp"
+#include "QuICC/Transform/Path/NegI4CurlCurlNl.hpp"
 #include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 
 namespace QuICC {
@@ -82,7 +83,14 @@ namespace Dynamo {
    {
       this->addNLComponent(FieldComponents::Spectral::TOR, Transform::Path::I2CurlNl::id());
 
-      this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::NegI2CurlCurlNl::id());
+      if(this->couplingInfo(FieldComponents::Spectral::POL).isSplitEquation())
+      {
+         this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::NegI2CurlCurlNl::id());
+      }
+      else
+      {
+         this->addNLComponent(FieldComponents::Spectral::POL, Transform::Path::NegI4CurlCurlNl::id());
+      }
    }
 
    void Momentum::initNLKernel(const bool force)
