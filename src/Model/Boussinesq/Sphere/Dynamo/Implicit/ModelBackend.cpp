@@ -33,6 +33,7 @@
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/NonDimensional/Prandtl.hpp"
+#include "QuICC/NonDimensional/MagneticPrandtl.hpp"
 #include "QuICC/NonDimensional/Rayleigh.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
 #include "QuICC/NonDimensional/CflInertial.hpp"
@@ -89,11 +90,20 @@ namespace Implicit {
    {
       SpectralFieldId velTor = std::make_pair(PhysicalNames::Velocity::id(), FieldComponents::Spectral::TOR);
       SpectralFieldId velPol = std::make_pair(PhysicalNames::Velocity::id(), FieldComponents::Spectral::POL);
-      SpectralFieldId magTor = std::make_pair(PhysicalNames::Magnetic::id(), FieldComponents::Spectral::TOR);
-      SpectralFieldId magPol = std::make_pair(PhysicalNames::Magnetic::id(), FieldComponents::Spectral::POL);
       SpectralFieldId temp = std::make_pair(PhysicalNames::Temperature::id(), FieldComponents::Spectral::SCALAR);
-      SpectralFieldIds fields = {velTor, velPol, magTor, magPol, temp};
 
+      SpectralFieldIds fields;
+      if(fId == velTor || fId == velPol || fId == temp)
+      {
+         fields = {velTor, velPol, temp};
+      }
+      else
+      {
+         fields = {fId};
+      }
+
+      // Make sure fields are sorted
+      std::sort(fields.begin(), fields.end());
       return fields;
    }
 
@@ -198,6 +208,7 @@ namespace Implicit {
          {
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
             const auto T = 1.0/Ek;
+            const auto Pm = nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             for(int l = m; l < nL; l++)
             {
@@ -207,7 +218,7 @@ namespace Implicit {
                   const auto dl = static_cast<MHDFloat>(l);
                   const auto invlapl = 1.0/(dl*(dl + 1.0));
                   SparseSM::Worland::I2Lapl i2lapl(nN, nN, a, b, l, 1*this->mcTruncateQI);
-                  SparseMatrix bMat = i2lapl.mat();
+                  SparseMatrix bMat = Pm*i2lapl.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -215,7 +226,7 @@ namespace Implicit {
                   this->addBlock(decMat.real(), bMat, rowShift, colShift);
 
                   SparseSM::Worland::I2 i2(nN, nN, a, b, l, 1*this->mcTruncateQI);
-                  bMat = m*T*invlapl*i2.mat();
+                  bMat = m*T*Pm*invlapl*i2.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -237,6 +248,7 @@ namespace Implicit {
 
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
             const auto T = 1.0/Ek;
+            const auto Pm = nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             this->blockInfo(tN, gN, shift, rhs, rowId, res, m, bcs);
 
@@ -251,7 +263,7 @@ namespace Implicit {
                   const auto invlapl = 1.0/(dl*(dl + 1.0));
                   SparseSM::Worland::I2Qm corQm(nN, nN, a, b, l, 1*this->mcTruncateQI);
                   auto norm = coriolis(l, m);
-                  SparseMatrix bMat = -static_cast<MHDFloat>(norm*T*invlapl)*corQm.mat();
+                  SparseMatrix bMat = -static_cast<MHDFloat>(norm*T*Pm*invlapl)*corQm.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -279,7 +291,7 @@ namespace Implicit {
                   const auto invlapl = MHD_MP(1.0)/(dl*(dl + MHD_MP(1.0)));
                   SparseSM::Worland::I2Qp corQp(nN, nN, a, b, l, 1*this->mcTruncateQI);
                   auto norm = -coriolis(l+1, m);
-                  SparseMatrix bMat = -static_cast<MHDFloat>(norm*T*invlapl)*corQp.mat();
+                  SparseMatrix bMat = -static_cast<MHDFloat>(norm*T*Pm*invlapl)*corQp.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -302,6 +314,7 @@ namespace Implicit {
          {
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
             const auto T = 1.0/Ek;
+            const auto Pm = nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             for(int l = m; l < nL; l++)
             {
@@ -311,7 +324,7 @@ namespace Implicit {
                   const auto dl = static_cast<QuICC::internal::MHDFloat>(l);
                   const auto invlapl = MHD_MP(1.0)/(dl*(dl + MHD_MP(1.0)));
                   SparseSM::Worland::I4Lapl2 i4lapl2(nN, nN, a, b, l, 2*this->mcTruncateQI);
-                  SparseMatrix bMat = i4lapl2.mat();
+                  SparseMatrix bMat = Pm*i4lapl2.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -319,7 +332,7 @@ namespace Implicit {
 
                   this->addBlock(decMat.real(), bMat, rowShift, colShift);
                   SparseSM::Worland::I4Lapl coriolis(nN, nN, a, b, l, 2*this->mcTruncateQI);
-                  bMat = static_cast<MHDFloat>(m*T*invlapl)*coriolis.mat();
+                  bMat = static_cast<MHDFloat>(m*T*Pm*invlapl)*coriolis.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -341,6 +354,7 @@ namespace Implicit {
 
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
             const auto T = 1.0/Ek;
+            const auto Pm = nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             this->blockInfo(tN, gN, shift, rhs, rowId, res, m, bcs);
             rowShift = baseRowShift + gN;
@@ -354,7 +368,7 @@ namespace Implicit {
                   const auto invlapl = 1.0/(dl*(dl + 1.0));
                   SparseSM::Worland::I4Qm corQm(nN, nN, a, b, l, 2*this->mcTruncateQI);
                   auto norm = coriolis(l, m);
-                  SparseMatrix bMat = static_cast<MHDFloat>(norm*T*invlapl)*corQm.mat();
+                  SparseMatrix bMat = static_cast<MHDFloat>(norm*T*Pm*invlapl)*corQm.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -380,7 +394,7 @@ namespace Implicit {
                   const auto invlapl = 1.0/(dl*(dl + 1.0));
                   SparseSM::Worland::I4Qp corQp(nN, nN, a, b, l, 2*this->mcTruncateQI);
                   auto norm = -coriolis(l+1, m);
-                  SparseMatrix bMat = static_cast<MHDFloat>(norm*T*invlapl)*corQp.mat();
+                  SparseMatrix bMat = static_cast<MHDFloat>(norm*T*Pm*invlapl)*corQp.mat();
                   if(this->useGalerkin())
                   {
                      this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -420,7 +434,7 @@ namespace Implicit {
 //            }
 //         }
       }
-      else if(rowId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::TOR))
+      else if(rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR))
       {
          if(rowId == colId)
          {
@@ -445,7 +459,7 @@ namespace Implicit {
             }
          }
       }
-      else if(rowId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::POL))
+      else if(rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::POL))
       {
          if(rowId == colId)
          {
@@ -475,13 +489,14 @@ namespace Implicit {
          if(rowId == colId)
          {
             const auto Pr = nds.find(NonDimensional::Prandtl::id())->second->value();
+            const auto Pm = nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             for(int l = m; l < nL; l++)
             {
                auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
                SparseMatrix bMat;
                SparseSM::Worland::I2Lapl i2lapl(nN, nN, a, b, l, 1*this->mcTruncateQI);
-               bMat = (1.0/Pr)*i2lapl.mat();
+               bMat = (Pm/Pr)*i2lapl.mat();
                if(this->useGalerkin())
                {
                   this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
@@ -580,7 +595,7 @@ namespace Implicit {
             rowShift += gN;
          }
       }
-      else if(fieldId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::TOR))
+      else if(fieldId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR))
       {
          int rowShift = baseShift;
          for(int l = m; l < nL; l++)
@@ -606,7 +621,7 @@ namespace Implicit {
             rowShift += gN;
          }
       }
-      else if(fieldId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::POL))
+      else if(fieldId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::POL))
       {
          int rowShift = baseShift;
          for(int l = m; l < nL; l++)

@@ -85,7 +85,7 @@ namespace Explicit {
       mcTruncateQI(false)
 #endif // QUICC_TRANSFORM_WORLAND_TRUNCATE_QI
    {
-      this->enableSplitEquation(true);
+      this->enableSplitEquation(false);
    }
 
    ModelBackend::SpectralFieldIds ModelBackend::implicitFields(const SpectralFieldId& fId) const
@@ -245,8 +245,16 @@ namespace Explicit {
       }
       else if(fieldId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::POL))
       {
-         SparseSM::Worland::I2 spasm(nN, nN, a, b, l, 1*this->mcTruncateQI);
-         decMat.real() = spasm.mat();
+         if(this->useSplitEquation())
+         {
+            SparseSM::Worland::I2 spasm(nN, nN, a, b, l, 1*this->mcTruncateQI);
+            decMat.real() = spasm.mat();
+         }
+         else
+         {
+            SparseSM::Worland::I4Lapl spasm(nN, nN, a, b, l, 2*this->mcTruncateQI);
+            decMat.real() = spasm.mat();
+         }
       }
       else if(fieldId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR))
       {
