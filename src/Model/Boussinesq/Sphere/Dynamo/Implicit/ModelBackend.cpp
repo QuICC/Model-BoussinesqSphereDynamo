@@ -83,7 +83,18 @@ namespace Implicit {
       mcTruncateQI(false)
 #endif // QUICC_TRANSFORM_WORLAND_TRUNCATE_QI
    {
-      this->enableSplitEquation(false);
+   }
+
+   void ModelBackend::enableSplitEquation(const bool flag)
+   {
+      if(flag)
+      {
+         throw std::logic_error("Split equation for implicit model is not implemented");
+      }
+      else
+      {
+         IDynamoBackend::enableSplitEquation(flag);
+      }
    }
 
    ModelBackend::SpectralFieldIds ModelBackend::implicitFields(const SpectralFieldId& fId) const

@@ -64,6 +64,11 @@ namespace Dynamo {
          virtual void enableGalerkin(const bool flag) override;
 
          /**
+          * @brief Enable split equation
+          */
+         virtual void enableSplitEquation(const bool flag) override;
+
+         /**
           * @brief Get auotmatically computed parameters based on input parameters
           *
           * @param cfg  Input parameters
@@ -80,11 +85,6 @@ namespace Dynamo {
           * @brief Split high order equations?
           */
          bool useSplitEquation() const;
-
-         /**
-          * @brief Enable split equation
-          */
-         void enableSplitEquation(const bool flag);
 
          /**
           * @brief Number of boundary conditions

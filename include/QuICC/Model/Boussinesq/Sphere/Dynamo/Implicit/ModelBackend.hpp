@@ -62,6 +62,11 @@ namespace Implicit {
          virtual ~ModelBackend() = default;
 
          /**
+          * @brief Enable split equation
+          */
+         virtual void enableSplitEquation(const bool flag) override;
+
+         /**
           * @brief Get equation information
           */
          virtual void equationInfo(EquationInfo& info, const SpectralFieldId& fId, const Resolution& res) const override;
