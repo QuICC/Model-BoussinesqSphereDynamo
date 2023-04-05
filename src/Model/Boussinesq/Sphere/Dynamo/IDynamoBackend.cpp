@@ -68,7 +68,7 @@ namespace Sphere {
 namespace Dynamo {
 
    IDynamoBackend::IDynamoBackend()
-      : IModelBackend(), mUseGalerkin(false), mUseSplitEquation(false)
+      : IModelBackend()
    {
    }
 
@@ -100,26 +100,6 @@ namespace Dynamo {
       std::vector<bool> periodic = {false, false, false};
 
       return periodic;
-   }
-
-   bool IDynamoBackend::useGalerkin() const
-   {
-      return this->mUseGalerkin;
-   }
-
-   void IDynamoBackend::enableGalerkin(const bool flag)
-   {
-      this->mUseGalerkin = flag;
-   }
-
-   bool IDynamoBackend::useSplitEquation() const
-   {
-      return this->mUseSplitEquation;
-   }
-
-   void IDynamoBackend::enableSplitEquation(const bool tag)
-   {
-      this->mUseSplitEquation = tag;
    }
 
    std::map<std::string,MHDFloat> IDynamoBackend::automaticParameters(const std::map<std::string,MHDFloat>& cfg) const

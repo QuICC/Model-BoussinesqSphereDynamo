@@ -59,16 +59,6 @@ namespace Dynamo {
          virtual std::vector<bool> isPeriodicBox() const override;
 
          /**
-          * @brief Enable galerkin basis
-          */
-         virtual void enableGalerkin(const bool flag) override;
-
-         /**
-          * @brief Enable split equation
-          */
-         virtual void enableSplitEquation(const bool flag) override;
-
-         /**
           * @brief Get auotmatically computed parameters based on input parameters
           *
           * @param cfg  Input parameters
@@ -76,16 +66,6 @@ namespace Dynamo {
          virtual std::map<std::string,MHDFloat> automaticParameters(const std::map<std::string,MHDFloat>& cfg) const override;
 
       protected:
-         /**
-          * @brief Use Galerkin basis?
-          */
-         bool useGalerkin() const;
-
-         /**
-          * @brief Split high order equations?
-          */
-         bool useSplitEquation() const;
-
          /**
           * @brief Number of boundary conditions
           */
@@ -112,15 +92,6 @@ namespace Dynamo {
          void applyGalerkinStencil(SparseMatrix& decMat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int l, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 
       private:
-         /**
-          * @brief Use Galerkin basis?
-          */
-         bool mUseGalerkin;
-
-         /**
-          * @brief Split high order equation?
-          */
-         bool mUseSplitEquation;
    };
 
 } // Dynamo
