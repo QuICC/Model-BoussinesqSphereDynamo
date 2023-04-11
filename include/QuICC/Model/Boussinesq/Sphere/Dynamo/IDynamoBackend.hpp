@@ -59,7 +59,7 @@ namespace Dynamo {
          virtual std::vector<bool> isPeriodicBox() const override;
 
          /**
-          * @brief Get auotmatically computed parameters based on input parameters
+          * @brief Get automatically computed parameters based on input parameters
           *
           * @param cfg  Input parameters
           */
@@ -68,26 +68,61 @@ namespace Dynamo {
       protected:
          /**
           * @brief Number of boundary conditions
+          *
+          * @fId  Field ID for which to get number of BC
           */
          int nBc(const SpectralFieldId& fId) const;
 
          /**
           * @brief Get operator block information
+          *
+          * @param tN      Tau radial size
+          * @param gN      Galerkin radial truncation
+          * @param shift   Shift in each direction due to Galerkin basis
+          * @param fId     ID of the field
+          * @param res     Resolution object
+          * @param l       Harmonic degree
+          * @param bcs     Boundary conditions
           */
          void blockInfo(int& tN, int& gN, ArrayI& shift, int& rhs, const SpectralFieldId& fId, const Resolution& res, const MHDFloat l, const BcMap& bcs) const;
 
          /**
           * @brief Apply tau line for boundary condition
+          *
+          * @param mat     Input/Output matrix to apply tau line to
+          * @param rowId   ID of field of equation
+          * @param colId   ID of field 
+          * @param l       Harmonic degree
+          * @param res     Resolution object
+          * @param bcs     Boundary conditions
+          * @param nds     Nondimensional parameters
+          * @param isSplitOperator  Is second operator of split 4th order system?
           */
          void applyTau(SparseMatrix& mat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int l, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds, const bool isSplitOperator) const;
 
          /**
           * @brief Boundary condition stencil
+          *
+          * @param mat        Input/Output matrix to store galerkin stencil
+          * @param fID        Field ID
+          * @param l          Harmonic degree
+          * @param res        Resolution object
+          * @param makeSquare Truncate operator to make square
+          * @param bcs        Boundary conditions
+          * @param nds        Nondimensional parameters
           */
          virtual void stencil(SparseMatrix& mat, const SpectralFieldId& fId, const int l, const Resolution& res, const bool makeSquare, const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 
          /**
           * @brief Apply galerkin stencil for boundary condition
+          *
+          * @param mat     Input/Output matrix to apply stencil to
+          * @param rowId   ID of field of equation
+          * @param colId   ID of field 
+          * @param l       Harmonic degree
+          * @param res     Resolution object
+          * @param bcs     Boundary conditions
+          * @param nds     Nondimensional parameters
           */
          void applyGalerkinStencil(SparseMatrix& decMat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int l, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 

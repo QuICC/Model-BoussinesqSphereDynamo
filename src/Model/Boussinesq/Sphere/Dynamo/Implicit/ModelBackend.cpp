@@ -419,31 +419,6 @@ namespace Implicit {
                colShift += gN;
             }
          }
-//         else if(colId == std::make_pair(PhysicalNames::Temperature::id(),FieldComponents::Spectral::SCALAR))
-//         {
-//            const auto Ra = nds.find(NonDimensional::Rayleigh::id())->second->value();
-//            const auto T = 1.0/nds.find(NonDimensional::Ekman::id())->second->value();
-//            const auto forcing = Ra*T;
-//            for(int l = m; l < nL; l++)
-//            {
-//               auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
-//               if(l > 0)
-//               {
-//                  SparseSM::Worland::I4 i4(nN, nN, a, b, l, 2*this->mcTruncateQI);
-//                  SparseMatrix bMat = -forcing*i4.mat();
-//                  if(this->useGalerkin())
-//                  {
-//                     this->applyGalerkinStencil(bMat, rowId, colId, l, res, bcs, nds);
-//                  }
-//                  this->addBlock(decMat.real(), bMat, rowShift, colShift);
-//               }
-//               this->blockInfo(tN, gN, shift, rhs, rowId, res, l, bcs);
-//               rowShift += gN;
-//
-//               this->blockInfo(tN, gN, shift, rhs, colId, res, l, bcs);
-//               colShift += gN;
-//            }
-//         }
       }
       else if(rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR))
       {
@@ -524,7 +499,7 @@ namespace Implicit {
       }
       else
       {
-         //throw std::logic_error("Equations are not setup properly");
+         throw std::logic_error("Equations are not setup properly");
       }
    }
 
