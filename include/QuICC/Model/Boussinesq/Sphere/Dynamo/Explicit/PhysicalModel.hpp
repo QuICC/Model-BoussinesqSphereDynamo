@@ -59,11 +59,11 @@ namespace Explicit {
       private:
    };
 
-}
-}
-}
-}
-}
-}
+} // Explicit
+} // Dynamo
+} // Sphere
+} // Boussinesq
+} // Model
+} // QuICC
 
 #endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
