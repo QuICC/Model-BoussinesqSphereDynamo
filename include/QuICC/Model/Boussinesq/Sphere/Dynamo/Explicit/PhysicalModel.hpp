@@ -6,20 +6,9 @@
 #ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
 #define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
 
-// Model version
-#define QUICC_VERSION_MODEL_MAJOR 1
-#define QUICC_VERSION_MODEL_MINOR 0
-#define QUICC_VERSION_MODEL_PATCH 0
-
-// Configuration includes
-//
-
 // System includes
 //
 #include <string>
-
-// External includes
-//
 
 // Project includes
 //
@@ -58,18 +47,23 @@ namespace Explicit {
          virtual ~PhysicalModel() = default;
 
          /// Python script/module name
-         virtual std::string PYMODULE() override;
+         std::string PYMODULE() final;
+
+         /**
+          * @brief Initialize specialized backend
+          */
+         void init() final;
 
       protected:
 
       private:
    };
 
-}
-}
-}
-}
-}
-}
+} // Explicit
+} // Dynamo
+} // Sphere
+} // Boussinesq
+} // Model
+} // QuICC
 
 #endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_PHYSICALMODEL_HPP
