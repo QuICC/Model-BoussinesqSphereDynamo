@@ -112,7 +112,7 @@ namespace Dynamo {
       }
    }
 
-   void Momentum::initConstraintKernel()
+   void Momentum::initConstraintKernel(const std::shared_ptr<std::vector<Array> >)
    {
       if(this->bcIds().bcId(this->name()) == Bc::Name::StressFree::id())
       {

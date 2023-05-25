@@ -56,7 +56,7 @@ namespace Kernel {
           * \param name Name of the field
           * \param spField Shared pointer to the scalar field
           */
-         virtual void setTemperature(std::size_t name, Framework::Selector::VariantSharedScalarVariable spField);
+         void setTemperature(std::size_t name, Framework::Selector::VariantSharedScalarVariable spField);
 
          /**
           * @brief Set the smart pointer to the velocity field
@@ -64,7 +64,7 @@ namespace Kernel {
           * \param name Name of the field
           * \param spField Shared pointer to the vector field
           */
-         virtual void setVelocity(std::size_t name, Framework::Selector::VariantSharedVectorVariable spField);
+         void setVelocity(std::size_t name, Framework::Selector::VariantSharedVectorVariable spField);
 
          /**
           * @brief Set the smart pointer to the magnetic field
@@ -72,7 +72,7 @@ namespace Kernel {
           * \param name Name of the field
           * \param spField Shared pointer to the vector field
           */
-         virtual void setMagnetic(std::size_t name, Framework::Selector::VariantSharedVectorVariable spField);
+         void setMagnetic(std::size_t name, Framework::Selector::VariantSharedVectorVariable spField);
 
          /**
           * @brief Initialize kernel
@@ -85,7 +85,7 @@ namespace Kernel {
           * @param rNLComp Nonlinear term component
           * @param id      ID of the component (allows for a more general implementation)
           */
-         virtual void compute(Framework::Selector::PhysicalScalarField& rNLComp, FieldComponents::Physical::Id id) const override;
+         void compute(Framework::Selector::PhysicalScalarField& rNLComp, FieldComponents::Physical::Id id) const final;
 
       protected:
          /**
