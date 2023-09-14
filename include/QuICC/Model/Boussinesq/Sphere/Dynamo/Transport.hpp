@@ -18,7 +18,6 @@
 
 // Project includes
 //
-#include "QuICC/Typedefs.hpp"
 #include "QuICC/Equations/IScalarEquation.hpp"
 
 namespace QuICC {
