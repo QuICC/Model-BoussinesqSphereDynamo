@@ -14,7 +14,7 @@
 
 // Class include
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
+#include "Model/Boussinesq//Sphere/Dynamo/Transport.hpp"
 
 // Project includes
 //
@@ -22,7 +22,7 @@
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/Transform/Path/I2ScalarNl.hpp"
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
+#include "Model/Boussinesq//Sphere/Dynamo/TransportKernel.hpp"
 
 namespace QuICC {
 

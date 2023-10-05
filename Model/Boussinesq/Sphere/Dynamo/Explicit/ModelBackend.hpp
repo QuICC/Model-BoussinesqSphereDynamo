@@ -15,7 +15,7 @@
 
 // Project includes
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/IDynamoBackend.hpp"
+#include "Model/Boussinesq//Sphere/Dynamo/IDynamoBackend.hpp"
 
 namespace QuICC {
 

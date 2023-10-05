@@ -14,7 +14,7 @@
 
 // Class include
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
+#include "Model/Boussinesq//Sphere/Dynamo/MomentumKernel.hpp"
 
 // Project includes
 //
