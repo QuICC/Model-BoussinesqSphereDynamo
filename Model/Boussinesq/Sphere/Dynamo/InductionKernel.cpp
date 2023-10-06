@@ -14,7 +14,7 @@
 
 // Class include
 //
-#include "Model/Boussinesq//Sphere/Dynamo/InductionKernel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 
 // Project includes
 //

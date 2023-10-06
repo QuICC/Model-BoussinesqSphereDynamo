@@ -9,7 +9,7 @@
 
 // Project includes
 //
-#include "Model/Boussinesq//Sphere/Dynamo/IDynamoBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/IDynamoBackend.hpp"
 #include "QuICC/ModelOperator/Time.hpp"
 #include "QuICC/ModelOperator/ImplicitLinear.hpp"
 #include "QuICC/ModelOperator/ExplicitLinear.hpp"

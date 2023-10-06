@@ -8,8 +8,8 @@
 
 // Project include
 //
-#include "Model/Boussinesq//Sphere/Dynamo/Explicit/PhysicalModel.hpp"
-#include "Model/Boussinesq//Sphere/Dynamo/Explicit/ModelBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Explicit/PhysicalModel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Explicit/ModelBackend.hpp"
 #include "QuICC/Model/PyModelBackend.hpp"
 
 namespace QuICC {
