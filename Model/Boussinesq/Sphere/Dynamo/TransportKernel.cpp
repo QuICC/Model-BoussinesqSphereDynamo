@@ -14,7 +14,7 @@
 
 // Class include
 //
-#include "QuICC/Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 
 // Project includes
 //
