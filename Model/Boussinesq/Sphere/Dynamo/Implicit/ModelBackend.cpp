@@ -10,6 +10,7 @@
 // Project includes
 //
 #include "Model/Boussinesq/Sphere/Dynamo/Implicit/ModelBackend.hpp"
+#include "Types/Internal/Math.hpp"
 #include "QuICC/ModelOperator/Time.hpp"
 #include "QuICC/ModelOperator/ImplicitLinear.hpp"
 #include "QuICC/ModelOperator/ExplicitLinear.hpp"
@@ -254,7 +255,7 @@ namespace Implicit {
          else if(colId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::POL))
          {
             auto coriolis = [](const int l, const int m){
-               return (l - MHD_MP(1.0))*(l + MHD_MP(1.0))*precision::sqrt(((l - m)*(l + m))/((MHD_MP(2.0)*l - MHD_MP(1.0))*(MHD_MP(2.0)*l + MHD_MP(1.0))));
+               return (l - MHD_MP(1.0))*(l + MHD_MP(1.0))*Internal::Math::sqrt(((l - m)*(l + m))/((MHD_MP(2.0)*l - MHD_MP(1.0))*(MHD_MP(2.0)*l + MHD_MP(1.0))));
             };
 
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
@@ -270,7 +271,7 @@ namespace Implicit {
                auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
                if(l > 0)
                {
-                  const auto dl = static_cast<QuICC::internal::MHDFloat>(l);
+                  const auto dl = static_cast<Internal::MHDFloat>(l);
                   const auto invlapl = 1.0/(dl*(dl + 1.0));
                   SparseSM::Worland::I2Qm corQm(nN, nN, a, b, l, 1*this->mcTruncateQI);
                   auto norm = coriolis(l, m);
@@ -298,7 +299,7 @@ namespace Implicit {
                auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
                if(l > 0)
                {
-                  const auto dl = static_cast<QuICC::internal::MHDFloat>(l);
+                  const auto dl = static_cast<Internal::MHDFloat>(l);
                   const auto invlapl = MHD_MP(1.0)/(dl*(dl + MHD_MP(1.0)));
                   SparseSM::Worland::I2Qp corQp(nN, nN, a, b, l, 1*this->mcTruncateQI);
                   auto norm = -coriolis(l+1, m);
@@ -332,7 +333,7 @@ namespace Implicit {
                auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
                if(l > 0)
                {
-                  const auto dl = static_cast<QuICC::internal::MHDFloat>(l);
+                  const auto dl = static_cast<Internal::MHDFloat>(l);
                   const auto invlapl = MHD_MP(1.0)/(dl*(dl + MHD_MP(1.0)));
                   SparseSM::Worland::I4Lapl2 i4lapl2(nN, nN, a, b, l, 2*this->mcTruncateQI);
                   SparseMatrix bMat = Pm*i4lapl2.mat();
@@ -360,7 +361,7 @@ namespace Implicit {
          else if(colId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::TOR))
          {
             auto coriolis = [](const int l, const int m){
-               return (l - MHD_MP(1.0))*(l + MHD_MP(1.0))*precision::sqrt(((l - m)*(l + m))/((MHD_MP(2.0)*l - MHD_MP(1.0))*(MHD_MP(2.0)*l + MHD_MP(1.0))));
+               return (l - MHD_MP(1.0))*(l + MHD_MP(1.0))*Internal::Math::sqrt(((l - m)*(l + m))/((MHD_MP(2.0)*l - MHD_MP(1.0))*(MHD_MP(2.0)*l + MHD_MP(1.0))));
             };
 
             const auto Ek = nds.find(NonDimensional::Ekman::id())->second->value();
@@ -837,9 +838,9 @@ namespace Implicit {
          int minL = m;
          // l = 0 is not used in Tor/Pol
          bool isTorPol = (
-               rowId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::TOR) || 
+               rowId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::TOR) ||
                rowId == std::make_pair(PhysicalNames::Velocity::id(),FieldComponents::Spectral::POL) ||
-               rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR) || 
+               rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::TOR) ||
                rowId == std::make_pair(PhysicalNames::Magnetic::id(),FieldComponents::Spectral::POL));
          if(m == 0 && isTorPol)
          {
