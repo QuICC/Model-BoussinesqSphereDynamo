@@ -67,11 +67,6 @@ namespace Sphere {
 
 namespace Dynamo {
 
-   IDynamoBackend::IDynamoBackend()
-      : IModelBackend()
-   {
-   }
-
    std::vector<std::string> IDynamoBackend::fieldNames() const
    {
       std::vector<std::string> names = {
@@ -138,30 +133,6 @@ namespace Dynamo {
       }
 
       return nBc;
-   }
-
-   void IDynamoBackend::blockInfo(int& tN, int& gN, ArrayI& shift, int& rhs, const SpectralFieldId& fId, const Resolution& res, const MHDFloat l, const BcMap& bcs) const
-   {
-      auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
-      tN = nN;
-
-      int shiftR = this->nBc(fId);
-      if(this->useGalerkin())
-      {
-         gN = (nN - shiftR);
-      }
-      else
-      {
-         shiftR = 0;
-         gN = nN;
-      }
-
-      // Set galerkin shifts
-      shift(0) = shiftR;
-      shift(1) = 0;
-      shift(2) = 0;
-
-      rhs = 1;
    }
 
    void IDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int l, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds, const bool isSplitOperator) const
@@ -318,7 +289,7 @@ namespace Dynamo {
       {
          if(bcId == Bc::Name::Insulating::id())
          {
-            SparseSM::Worland::Stencil::Value bc(nN, nN-1, a, b, l);
+            SparseSM::Worland::Stencil::Value bc(nN, nN-s, a, b, l);
             mat = bc.mat();
          }
          else
@@ -330,7 +301,7 @@ namespace Dynamo {
       {
          if(bcId == Bc::Name::Insulating::id())
          {
-            SparseSM::Worland::Stencil::InsulatingSphere bc(nN, nN-1, a, b, l);
+            SparseSM::Worland::Stencil::InsulatingSphere bc(nN, nN-s, a, b, l);
             mat = bc.mat();
          }
          else
@@ -363,23 +334,23 @@ namespace Dynamo {
       }
    }
 
-   void IDynamoBackend::applyGalerkinStencil(SparseMatrix& mat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int l, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds) const
+   void IDynamoBackend::applyGalerkinStencil(SparseMatrix& mat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int lr, const int lc, const Resolution& res, const BcMap& bcs, const NonDimensional::NdMap& nds) const
    {
-      auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
+      auto nNr = res.counter().dimensions(Dimensions::Space::SPECTRAL, lr)(0);
 
       auto a = Polynomial::Worland::WorlandBase::ALPHA_CHEBYSHEV;
       auto b = Polynomial::Worland::WorlandBase::DBETA_CHEBYSHEV;
 
       auto S = mat;
-      this->stencil(S, colId, l, res, false, bcs, nds);
+      this->stencil(S, colId, lc, res, false, bcs, nds);
 
       auto s = this->nBc(rowId);
-      SparseSM::Worland::Id qId(nN-s, nN, a, b, l, 0, s);
-      mat = qId.mat()*(mat*S);
+      SparseSM::Worland::Id qId(nNr - s, nNr, a, b, lr, 0, s);
+      mat = qId.mat() * (mat*S);
    }
 
-} // Dynamo
-} // Sphere
-} // Boussinesq
-} // Model
-} // QuICC
+} // namespace Dynamo
+} // namespace Sphere
+} // namespace Boussinesq
+} // namespace Model
+} // namespace QuICC

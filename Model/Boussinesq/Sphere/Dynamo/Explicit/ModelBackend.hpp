@@ -111,63 +111,82 @@ namespace Explicit {
 
       protected:
          /**
+          * @brief Operators are complex?
+          *
+          * @param fId  Field ID
+          */
+         bool isComplex(const SpectralFieldId& fId) const final;
+
+         /**
           * @brief Build model matrix
           *
           * @param fId  Field ID
           */
-         SpectralFieldIds implicitFields(const SpectralFieldId& fId) const;
+         SpectralFieldIds implicitFields(const SpectralFieldId& fId) const final;
 
          /**
-          * @brief Get operator information
+          * @brief Build implicit matrix block description
           *
-          * @param tN      Tau radial size
-          * @param gN      Galerkin radial truncation
-          * @param shift   Shift in each direction due to Galerkin basis
-          * @param rhs     Numer of RHS
-          * @param fId     ID of the field
-          * @param res     Resolution object
-          * @param eigs    Indexes of other dimensions
-          * @param bcs     Boundary conditions
-          */
-         void blockSize(int& tN, int& gN, ArrayI& shift, int& rhs, const SpectralFieldId& fId, const Resolution& res, const std::vector<MHDFloat>& eigs, const BcMap& bcs) const;
-
-         /**
-          * @brief Build implicit matrix block
-          *
-          * @param decMat  Ouput matrix
           * @param rowId   Field ID of block matrix row
           * @param colId   Field ID of block matrix column
-          * @param matIdx  Matrix ID
           * @param res     Resolution object
           * @param eigs    Slow indexes
+          * @param bcs     Boundary conditions for each field
           * @param nds     Nondimension parameters
           * @param isSplitOperator  Set operator of split system
           */
-         void implicitBlock(DecoupledZSparse& decMat, const SpectralFieldId& rowId, const SpectralFieldId& colId, const int matIdx, const Resolution& res, const std::vector<MHDFloat>& eigs, const NonDimensional::NdMap& nds, const bool isSplitOperator) const;
+         std::vector<details::BlockDescription> implicitBlockBuilder(
+               const SpectralFieldId& rowId, const SpectralFieldId& colId,
+               const Resolution& res, const std::vector<MHDFloat>& eigs,
+               const BcMap& bcs, const NonDimensional::NdMap& nds,
+               const bool isSplitOperator) const;
 
          /**
-          * @brief Build time matrix block
+          * @brief Build time matrix block description
           *
-          * @param decMat  Input/Output matrix to fill with operators
-          * @param fieldId   ID of field 
-          * @param matIdx        Matrix index
-          * @param res           Resolution object
-          * @param eigs          Indexes of other dimensions
-          * @param nds           Nondimensional parameters
+          * @param rowId   Field ID of block matrix row
+          * @param colId   Field ID of block matrix column
+          * @param res     Resolution object
+          * @param eigs    Slow indexes
+          * @param bcs     Boundary conditions for each field
+          * @param nds     Nondimension parameters
           */
-         void timeBlock(DecoupledZSparse& decMat, const SpectralFieldId& fieldId, const int matIdx, const Resolution& res, const std::vector<MHDFloat>& eigs, const NonDimensional::NdMap& nds) const;
+         std::vector<details::BlockDescription> timeBlockBuilder(
+               const SpectralFieldId& rowId, const SpectralFieldId& colId,
+               const Resolution& res, const std::vector<MHDFloat>& eigs,
+               const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 
          /**
-          * @brief Build inhomogeneous boundary value for split equation
+          * @brief Build boundary matrix block description
           *
-          * @param decMat  Input/Output matrix to fill with operators
-          * @param fieldId   ID of field 
-          * @param matIdx        Matrix index
-          * @param res           Resolution object
-          * @param eigs          Indexes of other dimensions
-          * @param nds           Nondimensional parameters
+          * @param rowId   Field ID of block matrix row
+          * @param colId   Field ID of block matrix column
+          * @param res     Resolution object
+          * @param eigs    Slow indexes
+          * @param bcs     Boundary conditions for each field
+          * @param nds     Nondimension parameters
+          * @param isSplitOperator  Set operator of split system
           */
-         void splitBoundaryValueBlock(DecoupledZSparse& decMat, const SpectralFieldId& fieldId, const int matIdx, const Resolution& res, const std::vector<MHDFloat>& eigs, const NonDimensional::NdMap& nds) const;
+         std::vector<details::BlockDescription> boundaryBlockBuilder(
+               const SpectralFieldId& rowId, const SpectralFieldId& colId,
+               const Resolution& res, const std::vector<MHDFloat>& eigs,
+               const BcMap& bcs, const NonDimensional::NdMap& nds,
+               const bool isSplitOperator) const;
+
+         /**
+          * @brief Build boundary matrix block description
+          *
+          * @param rowId   Field ID of block matrix row
+          * @param colId   Field ID of block matrix column
+          * @param res     Resolution object
+          * @param eigs    Slow indexes
+          * @param bcs     Boundary conditions for each field
+          * @param nds     Nondimension parameters
+          */
+         std::vector<details::BlockDescription> splitBoundaryValueBlockBuilder(
+               const SpectralFieldId& rowId, const SpectralFieldId& colId,
+               const Resolution& res, const std::vector<MHDFloat>& eigs,
+               const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 
       private:
          /**
@@ -176,11 +195,11 @@ namespace Explicit {
          const bool mcTruncateQI;
    };
 
-} // Explicit
-} // Dynamo
-} // Sphere
-} // Boussinesq
-} // Model
-} // QuICC
+} // namespace Explicit
+} // namespace Dynamo
+} // namespace Sphere
+} // namespace Boussinesq
+} // namespace Model
+} // namespace QuICC
 
 #endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPLICIT_MODELBACKEND_HPP
