@@ -148,78 +148,90 @@ namespace Dynamo {
 
       if(rowId == std::make_pair(PhysicalNames::Velocity::id(), FieldComponents::Spectral::TOR) && rowId == colId)
       {
-         if(bcId == Bc::Name::NoSlip::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-         }
-         else if(bcId == Bc::Name::StressFree::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::R1D1DivR1>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Velocity Toroidal component not implemented");
-         }
-      }
-      else if(rowId == std::make_pair(PhysicalNames::Velocity::id(), FieldComponents::Spectral::POL) && rowId == colId)
-      {
-         if(this->useSplitEquation())
-         {
-            if(isSplitOperator)
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-            }
-            else if(bcId == Bc::Name::NoSlip::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::D1>();
-            }
-            else if(bcId == Bc::Name::StressFree::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::D2>();
-            }
-            else
-            {
-               throw std::logic_error("Boundary conditions for Velocity Poloidal component not implemented");
-            }
-         }
-         else
+         if (l > 0)
          {
             if(bcId == Bc::Name::NoSlip::id())
             {
                bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-               bcOp.addRow<SparseSM::Worland::Boundary::D1>();
             }
             else if(bcId == Bc::Name::StressFree::id())
             {
-               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-               bcOp.addRow<SparseSM::Worland::Boundary::D2>();
+               bcOp.addRow<SparseSM::Worland::Boundary::R1D1DivR1>();
             }
             else
             {
-               throw std::logic_error("Boundary conditions for Velocity Poloidal component not implemented");
+               throw std::logic_error("Boundary conditions for Velocity Toroidal component not implemented");
+            }
+         }
+      }
+      else if(rowId == std::make_pair(PhysicalNames::Velocity::id(), FieldComponents::Spectral::POL) && rowId == colId)
+      {
+         if (l > 0)
+         {
+            if(this->useSplitEquation())
+            {
+               if(isSplitOperator)
+               {
+                  bcOp.addRow<SparseSM::Worland::Boundary::Value>();
+               }
+               else if(bcId == Bc::Name::NoSlip::id())
+               {
+                  bcOp.addRow<SparseSM::Worland::Boundary::D1>();
+               }
+               else if(bcId == Bc::Name::StressFree::id())
+               {
+                  bcOp.addRow<SparseSM::Worland::Boundary::D2>();
+               }
+               else
+               {
+                  throw std::logic_error("Boundary conditions for Velocity Poloidal component not implemented");
+               }
+            }
+            else
+            {
+               if(bcId == Bc::Name::NoSlip::id())
+               {
+                  bcOp.addRow<SparseSM::Worland::Boundary::Value>();
+                  bcOp.addRow<SparseSM::Worland::Boundary::D1>();
+               }
+               else if(bcId == Bc::Name::StressFree::id())
+               {
+                  bcOp.addRow<SparseSM::Worland::Boundary::Value>();
+                  bcOp.addRow<SparseSM::Worland::Boundary::D2>();
+               }
+               else
+               {
+                  throw std::logic_error("Boundary conditions for Velocity Poloidal component not implemented");
+               }
             }
          }
       }
       else if(rowId == std::make_pair(PhysicalNames::Magnetic::id(), FieldComponents::Spectral::TOR) && rowId == colId)
       {
-         if(bcId == Bc::Name::Insulating::id())
+         if (l > 0)
          {
-            bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Magnetic Toroidal component not implemented");
+            if(bcId == Bc::Name::Insulating::id())
+            {
+               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
+            }
+            else
+            {
+               throw std::logic_error("Boundary conditions for Magnetic Toroidal component not implemented");
+            }
          }
       }
       else if(rowId == std::make_pair(PhysicalNames::Magnetic::id(), FieldComponents::Spectral::POL) && rowId == colId)
       {
-         if(bcId == Bc::Name::Insulating::id())
+         if (l > 0)
          {
-            bcOp.addRow<SparseSM::Worland::Boundary::InsulatingSphere>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Magnetic Poloidal component not implemented");
+            if(bcId == Bc::Name::Insulating::id())
+            {
+               bcOp.addRow<SparseSM::Worland::Boundary::InsulatingSphere>();
+            }
+            else
+            {
+               throw std::logic_error("Boundary conditions for Magnetic Poloidal component not implemented");
+            }
          }
       }
       else if(rowId == std::make_pair(PhysicalNames::Temperature::id(), FieldComponents::Spectral::SCALAR) && rowId == colId)
