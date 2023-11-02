@@ -1,6 +1,7 @@
 /**
  * @file PhysicalModel.cpp
- * @brief Source of the Boussinesq thermal convection dynamo in a sphere (Toroidal/Poloidal formulation)
+ * @brief Source of the Boussinesq thermal convection dynamo in a sphere
+ * (Toroidal/Poloidal formulation)
  */
 
 // System includes
@@ -24,27 +25,28 @@ namespace Dynamo {
 
 namespace Implicit {
 
-   std::string PhysicalModel::PYMODULE()
-   {
-      return "boussinesq.sphere.dynamo.implicit.physical_model";
-   }
+std::string PhysicalModel::PYMODULE()
+{
+   return "boussinesq.sphere.dynamo.implicit.physical_model";
+}
 
-   void PhysicalModel::init()
-   {
+void PhysicalModel::init()
+{
 #ifdef QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_IMPLICIT_BACKEND_CPP
-      IPhysicalModel<Simulation,StateGenerator,VisualizationGenerator>::init();
+   IPhysicalModel<Simulation, StateGenerator, VisualizationGenerator>::init();
 
-      this->mpBackend = std::make_shared<ModelBackend>();
+   this->mpBackend = std::make_shared<ModelBackend>();
 #else
-      IPhysicalPyModel<Simulation,StateGenerator,VisualizationGenerator>::init();
+   IPhysicalPyModel<Simulation, StateGenerator, VisualizationGenerator>::init();
 
-      this->mpBackend = std::make_shared<PyModelBackend>(this->PYMODULE(), this->PYCLASS());
+   this->mpBackend =
+      std::make_shared<PyModelBackend>(this->PYMODULE(), this->PYCLASS());
 #endif
-   }
+}
 
-} // Implicit
-} // Dynamo
-} // Sphere
-} // Boussinesq
-} // Model
-} // QuICC
+} // namespace Implicit
+} // namespace Dynamo
+} // namespace Sphere
+} // namespace Boussinesq
+} // namespace Model
+} // namespace QuICC
