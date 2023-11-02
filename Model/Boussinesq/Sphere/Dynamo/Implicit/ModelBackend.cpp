@@ -898,8 +898,9 @@ std::vector<details::BlockDescription> ModelBackend::timeBlockBuilder(
          {
             auto rowId = *pRowId;
             auto colId = rowId;
+            const auto& fields = this->implicitFields(rowId);
             auto descr = timeBlockBuilder(rowId, colId, res, eigs, bcs, nds);
-            buildBlock(rModelMatrix, descr, rowId, colId, matIdx, bcType, res,
+            buildBlock(rModelMatrix, descr, rowId, colId, fields, matIdx, bcType, res,
                   m, maxL, bcs, nds, false);
          }
       }
@@ -910,14 +911,15 @@ std::vector<details::BlockDescription> ModelBackend::timeBlockBuilder(
 
         for (auto pRowId = imRange.first; pRowId != imRange.second; pRowId++)
         {
+            auto rowId = *pRowId;
+            const auto& fields = this->implicitFields(rowId);
             for (auto pColId = imRange.first; pColId != imRange.second;
                  pColId++)
             {
-                auto rowId = *pRowId;
                 auto colId = *pColId;
                 auto descr = implicitBlockBuilder(rowId, colId, res, eigs, bcs,
                    nds, isSplit);
-                buildBlock(rModelMatrix, descr, rowId, colId, matIdx, bcType,
+                buildBlock(rModelMatrix, descr, rowId, colId, fields, matIdx, bcType,
                    res, m, maxL, bcs, nds, isSplit);
             }
         }
@@ -929,14 +931,15 @@ std::vector<details::BlockDescription> ModelBackend::timeBlockBuilder(
 
          for (auto pRowId = imRange.first; pRowId != imRange.second; pRowId++)
          {
+            auto rowId = *pRowId;
+            const auto& fields = this->implicitFields(rowId);
             for (auto pColId = imRange.first; pColId != imRange.second;
                   pColId++)
             {
-               auto rowId = *pRowId;
                auto colId = *pColId;
                auto descr = boundaryBlockBuilder(rowId, colId, res, eigs, bcs,
                      nds, isSplit);
-               buildBlock(rModelMatrix, descr, rowId, colId, matIdx, bcType,
+               buildBlock(rModelMatrix, descr, rowId, colId, fields, matIdx, bcType,
                      res, m, maxL, bcs, nds, isSplit);
             }
          }
@@ -1013,8 +1016,9 @@ std::vector<details::BlockDescription> ModelBackend::boundaryBlockBuilder(
                   1;
 
       // Compute system size
-      const auto sysRows = systemInfo(fieldId, fieldId, m, maxL, res, bcs, makeSquare, false).blockRows;
-      const auto sysCols = systemInfo(fieldId, fieldId, m, maxL, res, bcs, true, false).blockCols;
+      const auto& fields = this->implicitFields(fieldId);
+      const auto sysRows = systemInfo(fieldId, fieldId, fields, m, maxL, res, bcs, makeSquare, false).blockRows;
+      const auto sysCols = systemInfo(fieldId, fieldId, fields, m, maxL, res, bcs, true, false).blockCols;
 
       auto nL = res.counter().dim(Dimensions::Simulation::SIM2D, Dimensions::Space::SPECTRAL, m);
 
