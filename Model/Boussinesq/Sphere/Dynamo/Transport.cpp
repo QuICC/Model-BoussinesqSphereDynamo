@@ -50,6 +50,7 @@ void Transport::setCoupling()
 {
    auto features = defaultCouplingFeature();
    features.at(CouplingFeature::Nonlinear) = true;
+   features.at(CouplingFeature::BoundaryValue) = true;
 
    this->defineCoupling(FieldComponents::Spectral::SCALAR,
       CouplingInformation::PROGNOSTIC, 0, features);
@@ -104,6 +105,37 @@ void Transport::setRequirements()
       FieldRequirement(false, ss.spectral(), ss.physical()));
    velReq.enableSpectral();
    velReq.enablePhysical();
+}
+
+MHDVariant Transport::boundaryValue(FieldComponents::Spectral::Id compId, const int i, const int j, const int k) const
+{
+   assert(compId == FieldComponents::Spectral::SCALAR);
+
+   MHDComplex val = 0;
+
+   // Boundary condition is applied to first row
+   if(i == 0)
+   {
+      int l, m;
+      const auto& tRes = *this->spRes()->cpu()->dim(Dimensions::Transform::SPECTRAL);
+      if(this->spRes()->sim().ss().has(SpatialScheme::Feature::SpectralOrdering132))
+      {
+         l = tRes.idx<Dimensions::Data::DAT3D>(k);
+         m = tRes.idx<Dimensions::Data::DAT2D>(j,k);
+      } else
+      {
+         l = tRes.idx<Dimensions::Data::DAT2D>(j,k);
+         m = tRes.idx<Dimensions::Data::DAT3D>(k);
+      }
+
+      // Set value at boundary for l,m mode
+      if(l == 3 && m == 3)
+      {
+         val = MHDComplex(42,42); // 42 + 42j
+      }
+   }
+
+   return val;
 }
 
 } // namespace Dynamo
