@@ -38,7 +38,7 @@
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
-#include "QuICC/Polynomial/Worland/WorlandBase.hpp"
+#include "QuICC/Polynomial/Worland/WorlandTypes.hpp"
 #include "QuICC/Resolutions/Tools/IndexCounter.hpp"
 #include "QuICC/SparseSM/Worland/Boundary/D1.hpp"
 #include "QuICC/SparseSM/Worland/Boundary/D2.hpp"
@@ -242,8 +242,8 @@ std::vector<details::BlockDescription> ModelBackend::implicitBlockBuilder(
       descr.push_back({});
       auto& d = descr.back();
       auto opts = std::make_shared<implDetails::BlockOptionsImpl>();
-      opts->a = Polynomial::Worland::WorlandBase::ALPHA_CHEBYSHEV;
-      opts->b = Polynomial::Worland::WorlandBase::DBETA_CHEBYSHEV;
+      opts->a = Polynomial::Worland::worland_default_t::ALPHA;
+      opts->b = Polynomial::Worland::worland_default_t::DBETA;
       opts->m = eigs.at(0);
       opts->bcId = bcs.find(colId.first)->second;
       opts->truncateQI = this->mcTruncateQI;
@@ -698,8 +698,8 @@ std::vector<details::BlockDescription> ModelBackend::timeBlockBuilder(
       descr.push_back({});
       auto& d = descr.back();
       auto opts = std::make_shared<implDetails::BlockOptionsImpl>();
-      opts->a = Polynomial::Worland::WorlandBase::ALPHA_CHEBYSHEV;
-      opts->b = Polynomial::Worland::WorlandBase::DBETA_CHEBYSHEV;
+      opts->a = Polynomial::Worland::worland_default_t::ALPHA;
+      opts->b = Polynomial::Worland::worland_default_t::DBETA;
       opts->m = eigs.at(0);
       opts->bcId = bcs.find(colId.first)->second;
       opts->truncateQI = this->mcTruncateQI;
@@ -981,8 +981,8 @@ std::vector<details::BlockDescription> ModelBackend::boundaryBlockBuilder(
       descr.push_back({});
       auto& d = descr.back();
       auto opts = std::make_shared<implDetails::BlockOptionsImpl>();
-      opts->a = Polynomial::Worland::WorlandBase::ALPHA_CHEBYSHEV;
-      opts->b = Polynomial::Worland::WorlandBase::DBETA_CHEBYSHEV;
+      opts->a = Polynomial::Worland::worland_default_t::ALPHA;
+      opts->b = Polynomial::Worland::worland_default_t::DBETA;
       opts->m = eigs.at(0);
       opts->bcId = bcs.find(colId.first)->second;
       opts->truncateQI = this->mcTruncateQI;
