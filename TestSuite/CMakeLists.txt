@@ -12,7 +12,7 @@ quicc_add_benchmark(Implicit
     TIMEOUT 500
   )
 
-if(QUICC_MPI)
+if(QUICC_USE_MPI)
   quicc_add_benchmark(Implicit
     MODEL "BoussinesqSphereDynamo"
     WORKDIR "${CMAKE_BINARY_DIR}/${QUICC_CURRENT_MODEL_DIR}/TestSuite/Benchmarks"
