@@ -284,13 +284,13 @@ std::vector<details::BlockDescription> ModelBackend::implicitBlockBuilder(
                {
                   SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
                      1 * o.truncateQI);
-                  bMat = Pm * i2lapl.mat();
+                  bMat = i2lapl.mat();
                }
                else
                {
                   SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
                      1 * o.truncateQI);
-                  bMat = i2lapl.mat();
+                  bMat = Pm * i2lapl.mat();
                }
             }
             else
