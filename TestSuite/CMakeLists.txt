@@ -11,6 +11,7 @@ quicc_add_benchmark(Explicit
   ARCHIVEDIR "${CMAKE_BINARY_DIR}/Models/_refdata"
   VARIANTS "framework/parallel/algorithm:serial" "framework/timestepping/scheme:ImEx_PC2" "setup/model/split_equation:On"
   FILTER "algorithm" "split_equation"
+  DATAFILTER "split_equation"
   )
 
 quicc_add_benchmark(Implicit
