@@ -816,7 +816,7 @@ void ModelBackend::modelMatrix(DecoupledZSparse& rModelMatrix,
             auto colId = *pColId;
             auto descr = splitBoundaryValueBlockBuilder(rowId, colId, res, eigs,
                bcs, nds);
-            buildBlock(rModelMatrix, descr, rowId, colId, fields, matIdx,
+            buildFixedBlock(rModelMatrix, 1, true, descr, rowId, colId, fields, matIdx,
                bcType, res, l, l, bcs, nds, false);
          }
       }
