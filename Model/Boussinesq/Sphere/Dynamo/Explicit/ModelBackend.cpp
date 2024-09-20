@@ -284,13 +284,13 @@ std::vector<details::BlockDescription> ModelBackend::implicitBlockBuilder(
                {
                   SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
                      1 * o.truncateQI);
-                  bMat = Pm * i2lapl.mat();
+                  bMat = i2lapl.mat();
                }
                else
                {
                   SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
                      1 * o.truncateQI);
-                  bMat = i2lapl.mat();
+                  bMat = Pm * i2lapl.mat();
                }
             }
             else
@@ -816,8 +816,8 @@ void ModelBackend::modelMatrix(DecoupledZSparse& rModelMatrix,
             auto colId = *pColId;
             auto descr = splitBoundaryValueBlockBuilder(rowId, colId, res, eigs,
                bcs, nds);
-            buildBlock(rModelMatrix, descr, rowId, colId, fields, matIdx,
-               bcType, res, l, l, bcs, nds, false);
+            buildFixedBlock(rModelMatrix, 1, true, descr, rowId, colId, fields,
+               matIdx, bcType, res, l, l, bcs, nds, false);
          }
       }
    }
