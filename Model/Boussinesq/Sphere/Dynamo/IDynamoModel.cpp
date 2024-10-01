@@ -35,6 +35,7 @@
 #include "QuICC/Generator/Visualizers/VectorFieldVisualizer.hpp"
 #include "QuICC/Io/Variable/SphereAngularMomentumWriter.hpp"
 #include "QuICC/Io/Variable/SphereNusseltWriter.hpp"
+#include "QuICC/Io/Variable/SphereDipolarityWriter.hpp"
 #include "QuICC/Io/Variable/SphereScalarEnergyWriter.hpp"
 #include "QuICC/Io/Variable/SphereScalarLSpectrumWriter.hpp"
 #include "QuICC/Io/Variable/SphereScalarMSpectrumWriter.hpp"
@@ -389,6 +390,7 @@ IDynamoModel::configTags() const
    // diagnostic
    tags.emplace("angular_momentum", onOff);
    tags.emplace("nusselt", onOff);
+   tags.emplace("dipolarity", onOff);
 
    return tags;
 }
@@ -454,6 +456,10 @@ void IDynamoModel::addAsciiOutputFiles(SharedSimulation spSim)
    // Create angular momentum writer
    this->enableAsciiFile<Io::Variable::SphereAngularMomentumWriter>(
       "angular_momentum", "", PhysicalNames::Velocity::id(), spSim);
+
+   // Create dipolarity writer
+   this->enableAsciiFile<Io::Variable::SphereDipolarityWriter>(
+      "dipolarity", "", PhysicalNames::Velocity::id(), spSim);
 }
 
 } // namespace Dynamo
