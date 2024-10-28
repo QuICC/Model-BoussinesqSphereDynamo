@@ -138,7 +138,8 @@ int IDynamoBackend::nBc(const SpectralFieldId& fId) const
 }
 
 void IDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
-   const SpectralFieldId& colId, const int l, const Resolution& res,
+   const SpectralFieldId& colId, const int l,
+   std::shared_ptr<details::BlockOptions> opts, const Resolution& res,
    const BcMap& bcs, const NonDimensional::NdMap& nds,
    const bool isSplitOperator) const
 {
@@ -382,7 +383,8 @@ void IDynamoBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
 
 void IDynamoBackend::applyGalerkinStencil(SparseMatrix& mat,
    const SpectralFieldId& rowId, const SpectralFieldId& colId, const int lr,
-   const int lc, const Resolution& res, const BcMap& bcs,
+   const int lc, std::shared_ptr<details::BlockOptions> opts,
+   const Resolution& res, const BcMap& bcs,
    const NonDimensional::NdMap& nds) const
 {
    auto nNr = res.counter().dimensions(Dimensions::Space::SPECTRAL, lr)(0);
