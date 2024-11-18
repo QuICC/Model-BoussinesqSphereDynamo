@@ -302,11 +302,15 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
     %TGrad:3 = call @bwdGradScalar(%T) : (!complex) -> (!real, !real, !real)
     %Vel:3 = call @bwdVector(%TorVel, %PolVel) : (!complex, !complex) -> (!real, !real, !real)
     %CurlVel:3 = call @bwdCurl(%TorVel, %PolVel) : (!complex, !complex) -> (!real, !real, !real)
+    %Mag:3 = call @bwdVector(%TorMag, %PolMag) : (!complex, !complex) -> (!real, !real, !real)
+    %CurlMag:3 = call @bwdCurl(%TorMag, %PolMag) : (!complex, !complex) -> (!real, !real, !real)
     %TPhysNl = call @nlScalar(%Vel#0, %Vel#1, %Vel#2, %TGrad#0, %TGrad#1, %TGrad#2) : (!real, !real, !real, !real, !real, !real) -> !real
     %VelNl:3 = call @nlVector(%Vel#0, %Vel#1, %Vel#2, %CurlVel#0, %CurlVel#1, %CurlVel#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
+    %MagNl:3 = call @nlVector(%Mag#0, %Mag#1, %Mag#2, %CurlMag#0, %CurlMag#1, %CurlMag#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
     %TNl = call @fwdScalar(%TPhysNl) : (!real) -> !complex
     %TorVelNl, %PolVelNl = call @fwdVector(%VelNl#0, %VelNl#1, %VelNl#2) : (!real, !real, !real) -> (!complex, !complex)
-    return %TNl, %TorVelNl, %PolVelNl, %TorVelNl, %PolVelNl, %Vel#0, %Vel#1, %Vel#2: !complex, !complex, !complex, !complex, !complex, !real, !real, !real
+    %TorMagNl, %PolMagNl = call @fwdVector(%MagNl#0, %MagNl#1, %MagNl#2) : (!real, !real, !real) -> (!complex, !complex)
+    return %TNl, %TorVelNl, %PolVelNl, %TorMagNl, %PolMagNl, %Vel#0, %Vel#1, %Vel#2: !complex, !complex, !complex, !complex, !complex, !real, !real, !real
 }
    )mlir";
 
