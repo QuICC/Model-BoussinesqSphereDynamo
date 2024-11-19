@@ -219,7 +219,47 @@ func.func private @fwdScalar(%S: !real) -> !complex {
     return %S3 : !complex
 }
 
-func.func private @fwdVector(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !complex){
+func.func private @fwdVel(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !complex){
+    // Tor
+    %ThetaTor1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
+    %ThetaTor1T = quiccir.transpose %ThetaTor1 permutation = [2, 0, 1] : !complex -> !complex
+    %ThetaTor2 = quiccir.al.int %ThetaTor1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
+    %ThetaTor2T = quiccir.transpose %ThetaTor2 permutation = [2, 0, 1] : !complex -> !complex
+    %ThetaTor3 = quiccir.jw.int %ThetaTor2T : !complex -> !complex attributes{kind = "I2_Zero"}
+    //
+    %PhiTor1 = quiccir.fr.int %Phi : !real -> !complex attributes{kind = "P"}
+    %PhiTor1T = quiccir.transpose %PhiTor1 permutation = [2, 0, 1] : !complex -> !complex
+    %PhiTor2 = quiccir.al.int %PhiTor1T : !complex -> !complex attributes{kind = "DivLlD1"}
+    %PhiTor2T = quiccir.transpose %PhiTor2 permutation = [2, 0, 1] : !complex -> !complex
+    %PhiTor3 = quiccir.jw.int %PhiTor2T : !complex -> !complex attributes{kind = "I2_Zero"}
+    //
+    %Tor = quiccir.sub %ThetaTor3, %PhiTor3 : !complex, !complex -> !complex
+
+    // Pol
+    %RPol1 = quiccir.fr.int %R : !real -> !complex attributes{kind = "P"}
+    %RPol1T = quiccir.transpose %RPol1 permutation = [2, 0, 1] : !complex -> !complex
+    %RPol2 = quiccir.al.int %RPol1T : !complex -> !complex attributes{kind = "P"}
+    %RPol2T = quiccir.transpose %RPol2 permutation = [2, 0, 1] : !complex -> !complex
+    %RPol3 = quiccir.jw.int %RPol2T : !complex -> !complex attributes{kind = "I4DivR1_Zero"}
+    //
+    %ThetaPol1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
+    %ThetaPol1T = quiccir.transpose %ThetaPol1 permutation = [2, 0, 1] : !complex -> !complex
+    %ThetaPol2 = quiccir.al.int %ThetaPol1T : !complex -> !complex attributes{kind = "DivLlD1"}
+    %ThetaPol2T = quiccir.transpose %ThetaPol2 permutation = [2, 0, 1] : !complex -> !complex
+    %ThetaPol3 = quiccir.jw.int %ThetaPol2T : !complex -> !complex attributes{kind = "I4DivR1D1R1_Zero"}
+    //
+    %PhiPol1 = quiccir.fr.int %Phi : !real -> !complex attributes{kind = "P"}
+    %PhiPol1T = quiccir.transpose %PhiPol1 permutation = [2, 0, 1] : !complex -> !complex
+    %PhiPol2 = quiccir.al.int %PhiPol1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
+    %PhiPol2T = quiccir.transpose %PhiPol2 permutation = [2, 0, 1] : !complex -> !complex
+    %PhiPol3 = quiccir.jw.int %PhiPol2T : !complex -> !complex attributes{kind = "I4DivR1D1R1_Zero"}
+    //
+    %tmp = quiccir.add %ThetaPol3, %PhiPol3 : !complex, !complex -> !complex
+    %Pol = quiccir.sub %tmp, %RPol3 : !complex, !complex -> !complex
+    return %Tor, %Pol : !complex, !complex
+}
+
+func.func private @fwdMag(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !complex){
     // Tor
     %ThetaTor1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
     %ThetaTor1T = quiccir.transpose %ThetaTor1 permutation = [2, 0, 1] : !complex -> !complex
@@ -272,28 +312,49 @@ func.func private @nlScalar(%UR: !real, %UTheta: !real, %UPhi: !real,
     return %TPhysNl : !real
 }
 
-func.func private @nlVector(%UR: !real, %UTheta: !real, %UPhi: !real,
-    %CurlR: !real, %CurlTheta: !real, %CurlPhi: !real, %T: !real) -> (!real, !real, !real) {
-    // Cross
-    %Cross:3 = quiccir.cross(%CurlR, %CurlTheta, %CurlPhi), (%UR, %UTheta, %UPhi) :
+func.func private @nlVel(%UR: !real, %UTheta: !real, %UPhi: !real,
+    %CurlUR: !real, %CurlUTheta: !real, %CurlUPhi: !real,
+    %BR: !real, %BTheta: !real, %BPhi: !real,
+    %CurlBR: !real, %CurlBTheta: !real, %CurlBPhi: !real,
+    %T: !real) -> (!real, !real, !real) {
+    // Cross Vel
+    %CrossU:3 = quiccir.cross(%CurlUR, %CurlUTheta, %CurlUPhi), (%UR, %UTheta, %UPhi) :
         (!real, !real, !real), (!real, !real, !real) ->
         (!real, !real, !real)
         attributes{kind = "inertia"}
+    // Cross Mag
+     %CrossB:3 = quiccir.cross(%CurlBR, %CurlBTheta, %CurlBPhi), (%BR, %BTheta, %BPhi) :
+        (!real, !real, !real), (!real, !real, !real) ->
+        (!real, !real, !real)
+        attributes{kind = "lorentz"}
+    // Sum by component
+    %Cross0 = quiccir.add %CrossU#0, %CrossB#0 : !real, !real -> !real
+    %Cross1 = quiccir.add %CrossU#1, %CrossB#1 : !real, !real -> !real
+    %Cross2 = quiccir.add %CrossU#2, %CrossB#2 : !real, !real -> !real
     // Add buoyancy
     %Buoy = quiccir.mul.const %T : !real -> !real attributes{kind = "buoyancy"}
-    %RTmp = quiccir.sub %Cross#0, %Buoy : !real, !real -> !real
+    %RTmp = quiccir.sub %Cross0, %Buoy : !real, !real -> !real
     // Add coriolis
     %Cor0 = quiccir.mul.const %UPhi : !real -> !real attributes{kind = "coriolis_sin"}
     %RNl = quiccir.sub %RTmp, %Cor0 : !real, !real -> !real
     %Cor1 = quiccir.mul.const %UPhi : !real -> !real attributes{kind = "coriolis_cos"}
-    %ThetaNl = quiccir.sub %Cross#1, %Cor1 : !real, !real -> !real
+    %ThetaNl = quiccir.sub %Cross1, %Cor1 : !real, !real -> !real
     %Cor2a = quiccir.mul.const %UR : !real -> !real attributes{kind = "coriolis_sin"}
-    %PhiTmp = quiccir.add %Cross#2, %Cor2a : !real, !real -> !real
+    %PhiTmp = quiccir.add %Cross2, %Cor2a : !real, !real -> !real
     %Cor2b = quiccir.mul.const %UTheta : !real -> !real attributes{kind = "coriolis_cos"}
     %PhiNl = quiccir.add %PhiTmp, %Cor2b : !real, !real -> !real
     return %RNl, %ThetaNl, %PhiNl : !real, !real, !real
 }
 
+func.func private @nlMag(%UR: !real, %UTheta: !real, %UPhi: !real,
+    %MagR: !real, %MagTheta: !real, %MagPhi: !real, %T: !real) -> (!real, !real, !real) {
+    // Cross
+    %Cross:3 = quiccir.cross(%UR, %UTheta, %UPhi), (%MagR, %MagTheta, %MagPhi) :
+        (!real, !real, !real), (!real, !real, !real) ->
+        (!real, !real, !real)
+        attributes{kind = "induction"}
+    return %Cross#0, %Cross#1, %Cross#2  : !real, !real, !real
+}
 
 func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
    %TorMag: !complex, %PolMag: !complex) -> (!complex, !complex, !complex, !complex, !complex,
@@ -305,22 +366,26 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
     %Mag:3 = call @bwdVector(%TorMag, %PolMag) : (!complex, !complex) -> (!real, !real, !real)
     %CurlMag:3 = call @bwdCurl(%TorMag, %PolMag) : (!complex, !complex) -> (!real, !real, !real)
     %TPhysNl = call @nlScalar(%Vel#0, %Vel#1, %Vel#2, %TGrad#0, %TGrad#1, %TGrad#2) : (!real, !real, !real, !real, !real, !real) -> !real
-    %VelNl:3 = call @nlVector(%Vel#0, %Vel#1, %Vel#2, %CurlVel#0, %CurlVel#1, %CurlVel#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
-    %MagNl:3 = call @nlVector(%Mag#0, %Mag#1, %Mag#2, %CurlMag#0, %CurlMag#1, %CurlMag#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
+    %VelNl:3 = call @nlVel(%Vel#0, %Vel#1, %Vel#2, %CurlVel#0, %CurlVel#1, %CurlVel#2, %Mag#0, %Mag#1, %Mag#2, %CurlMag#0, %CurlMag#1, %CurlMag#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
+    %MagNl:3 = call @nlMag(%Vel#0, %Vel#1, %Vel#2, %Mag#0, %Mag#1, %Mag#2) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
     %TNl = call @fwdScalar(%TPhysNl) : (!real) -> !complex
-    %TorVelNl, %PolVelNl = call @fwdVector(%VelNl#0, %VelNl#1, %VelNl#2) : (!real, !real, !real) -> (!complex, !complex)
-    %TorMagNl, %PolMagNl = call @fwdVector(%MagNl#0, %MagNl#1, %MagNl#2) : (!real, !real, !real) -> (!complex, !complex)
+    %TorVelNl, %PolVelNl = call @fwdVel(%VelNl#0, %VelNl#1, %VelNl#2) : (!real, !real, !real) -> (!complex, !complex)
+    %TorMagNl, %PolMagNl = call @fwdMag(%MagNl#0, %MagNl#1, %MagNl#2) : (!real, !real, !real) -> (!complex, !complex)
     return %TNl, %TorVelNl, %PolVelNl, %TorMagNl, %PolMagNl, %Vel#0, %Vel#1, %Vel#2: !complex, !complex, !complex, !complex, !complex, !real, !real, !real
 }
    )mlir";
 
    MHDFloat T = 1.0 / spSim->eqParams()->nd(NonDimensional::Ekman::id());
    MHDFloat Ra = spSim->eqParams()->nd(NonDimensional::Rayleigh::id());
+   MHDFloat Pr = spSim->eqParams().nd(NonDimensional::Prandtl::id());
+   MHDFloat Pm = spSim->eqParams().nd(NonDimensional::MagneticPrandtl::id());
    Graph::PhysicalParameters<MHDFloat> physParams;
    physParams.transport = 1.0;
    physParams.inertia = 1.0;
-   physParams.coriolis = T;
-   physParams.buoyancy = Ra * T;
+   physParams.buoyancy = Pm * Pm * Ra * T / Pr;
+   physParams.coriolis = T * Pm;
+   physParams.lorenz = T * Pm;
+   physParams.induction = 1.0;
    spSim->addGraph(graphStr, physParams);
 }
 
