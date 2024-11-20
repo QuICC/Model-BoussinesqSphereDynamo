@@ -265,7 +265,7 @@ func.func private @fwdMag(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !
     %RTor1T = quiccir.transpose %RTor1 permutation = [2, 0, 1] : !complex -> !complex
     %RTor2 = quiccir.al.int %RTor1T : !complex -> !complex attributes{kind = "P"}
     %RTor2T = quiccir.transpose %RTor2 permutation = [2, 0, 1] : !complex -> !complex
-    %RTor3 = quiccir.jw.int %RPol2T : !complex -> !complex attributes{kind = "I2DivR1_Zero"}
+    %RTor3 = quiccir.jw.int %RTor2T : !complex -> !complex attributes{kind = "I2DivR1_Zero"}
     //
     %ThetaTor1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
     %ThetaTor1T = quiccir.transpose %ThetaTor1 permutation = [2, 0, 1] : !complex -> !complex
@@ -347,7 +347,7 @@ func.func private @nlVel(%UR: !real, %UTheta: !real, %UPhi: !real,
 }
 
 func.func private @nlMag(%UR: !real, %UTheta: !real, %UPhi: !real,
-    %MagR: !real, %MagTheta: !real, %MagPhi: !real, %T: !real) -> (!real, !real, !real) {
+    %MagR: !real, %MagTheta: !real, %MagPhi: !real) -> (!real, !real, !real) {
     // Cross
     %Cross:3 = quiccir.cross(%UR, %UTheta, %UPhi), (%MagR, %MagTheta, %MagPhi) :
         (!real, !real, !real), (!real, !real, !real) ->
@@ -367,7 +367,7 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
     %CurlMag:3 = call @bwdCurl(%TorMag, %PolMag) : (!complex, !complex) -> (!real, !real, !real)
     %TPhysNl = call @nlScalar(%Vel#0, %Vel#1, %Vel#2, %TGrad#0, %TGrad#1, %TGrad#2) : (!real, !real, !real, !real, !real, !real) -> !real
     %VelNl:3 = call @nlVel(%Vel#0, %Vel#1, %Vel#2, %CurlVel#0, %CurlVel#1, %CurlVel#2, %Mag#0, %Mag#1, %Mag#2, %CurlMag#0, %CurlMag#1, %CurlMag#2, %TPhys) : (!real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
-    %MagNl:3 = call @nlMag(%Vel#0, %Vel#1, %Vel#2, %Mag#0, %Mag#1, %Mag#2) : (!real, !real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
+    %MagNl:3 = call @nlMag(%Vel#0, %Vel#1, %Vel#2, %Mag#0, %Mag#1, %Mag#2) : (!real, !real, !real, !real, !real, !real) -> (!real, !real, !real)
     %TNl = call @fwdScalar(%TPhysNl) : (!real) -> !complex
     %TorVelNl, %PolVelNl = call @fwdVel(%VelNl#0, %VelNl#1, %VelNl#2) : (!real, !real, !real) -> (!complex, !complex)
     %TorMagNl, %PolMagNl = call @fwdMag(%MagNl#0, %MagNl#1, %MagNl#2) : (!real, !real, !real) -> (!complex, !complex)
