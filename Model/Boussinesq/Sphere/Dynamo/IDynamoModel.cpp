@@ -261,41 +261,41 @@ func.func private @fwdVel(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !
 
 func.func private @fwdMag(%R: !real, %Theta: !real, %Phi: !real) -> (!complex, !complex){
     // Tor
+    %RTor1 = quiccir.fr.int %R : !real -> !complex attributes{kind = "P"}
+    %RTor1T = quiccir.transpose %RTor1 permutation = [2, 0, 1] : !complex -> !complex
+    %RTor2 = quiccir.al.int %RTor1T : !complex -> !complex attributes{kind = "P"}
+    %RTor2T = quiccir.transpose %RTor2 permutation = [2, 0, 1] : !complex -> !complex
+    %RTor3 = quiccir.jw.int %RPol2T : !complex -> !complex attributes{kind = "I2DivR1_Zero"}
+    //
     %ThetaTor1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
     %ThetaTor1T = quiccir.transpose %ThetaTor1 permutation = [2, 0, 1] : !complex -> !complex
-    %ThetaTor2 = quiccir.al.int %ThetaTor1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
+    %ThetaTor2 = quiccir.al.int %ThetaTor1T : !complex -> !complex attributes{kind = "DivLlD1"}
     %ThetaTor2T = quiccir.transpose %ThetaTor2 permutation = [2, 0, 1] : !complex -> !complex
-    %ThetaTor3 = quiccir.jw.int %ThetaTor2T : !complex -> !complex attributes{kind = "I2_Zero"}
+    %ThetaTor3 = quiccir.jw.int %ThetaTor2T : !complex -> !complex attributes{kind = "I2DivR1D1R1_Zero"}
     //
     %PhiTor1 = quiccir.fr.int %Phi : !real -> !complex attributes{kind = "P"}
     %PhiTor1T = quiccir.transpose %PhiTor1 permutation = [2, 0, 1] : !complex -> !complex
-    %PhiTor2 = quiccir.al.int %PhiTor1T : !complex -> !complex attributes{kind = "DivLlD1"}
+    %PhiTor2 = quiccir.al.int %PhiTor1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
     %PhiTor2T = quiccir.transpose %PhiTor2 permutation = [2, 0, 1] : !complex -> !complex
-    %PhiTor3 = quiccir.jw.int %PhiTor2T : !complex -> !complex attributes{kind = "I2_Zero"}
+    %PhiTor3 = quiccir.jw.int %PhiTor2T : !complex -> !complex attributes{kind = "I2DivR1D1R1_Zero"}
     //
-    %Tor = quiccir.sub %ThetaTor3, %PhiTor3 : !complex, !complex -> !complex
+    %tmpTor = quiccir.sub %RTor3, %ThetaTor3 : !complex, !complex -> !complex
+    %Tor = quiccir.sub %tmpTor, %PhiTor3 : !complex, !complex -> !complex
 
     // Pol
-    %RPol1 = quiccir.fr.int %R : !real -> !complex attributes{kind = "P"}
-    %RPol1T = quiccir.transpose %RPol1 permutation = [2, 0, 1] : !complex -> !complex
-    %RPol2 = quiccir.al.int %RPol1T : !complex -> !complex attributes{kind = "P"}
-    %RPol2T = quiccir.transpose %RPol2 permutation = [2, 0, 1] : !complex -> !complex
-    %RPol3 = quiccir.jw.int %RPol2T : !complex -> !complex attributes{kind = "I4DivR1_Zero"}
-    //
     %ThetaPol1 = quiccir.fr.int %Theta : !real -> !complex attributes{kind = "P"}
     %ThetaPol1T = quiccir.transpose %ThetaPol1 permutation = [2, 0, 1] : !complex -> !complex
-    %ThetaPol2 = quiccir.al.int %ThetaPol1T : !complex -> !complex attributes{kind = "DivLlD1"}
+    %ThetaPol2 = quiccir.al.int %ThetaPol1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
     %ThetaPol2T = quiccir.transpose %ThetaPol2 permutation = [2, 0, 1] : !complex -> !complex
-    %ThetaPol3 = quiccir.jw.int %ThetaPol2T : !complex -> !complex attributes{kind = "I4DivR1D1R1_Zero"}
+    %ThetaPol3 = quiccir.jw.int %ThetaPol2T : !complex -> !complex attributes{kind = "I2_Zero"}
     //
     %PhiPol1 = quiccir.fr.int %Phi : !real -> !complex attributes{kind = "P"}
     %PhiPol1T = quiccir.transpose %PhiPol1 permutation = [2, 0, 1] : !complex -> !complex
-    %PhiPol2 = quiccir.al.int %PhiPol1T : !complex -> !complex attributes{kind = "DivLlDivS1Dp"}
+    %PhiPol2 = quiccir.al.int %PhiPol1T : !complex -> !complex attributes{kind = "DivLlD1"}
     %PhiPol2T = quiccir.transpose %PhiPol2 permutation = [2, 0, 1] : !complex -> !complex
-    %PhiPol3 = quiccir.jw.int %PhiPol2T : !complex -> !complex attributes{kind = "I4DivR1D1R1_Zero"}
+    %PhiPol3 = quiccir.jw.int %PhiPol2T : !complex -> !complex attributes{kind = "I2_Zero"}
     //
-    %tmp = quiccir.add %ThetaPol3, %PhiPol3 : !complex, !complex -> !complex
-    %Pol = quiccir.sub %tmp, %RPol3 : !complex, !complex -> !complex
+    %Pol = quiccir.sub %ThetaPol3, %PhiPol3 : !complex, !complex -> !complex
     return %Tor, %Pol : !complex, !complex
 }
 
