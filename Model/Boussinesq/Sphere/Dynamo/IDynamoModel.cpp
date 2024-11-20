@@ -349,7 +349,7 @@ func.func private @nlVel(%UR: !real, %UTheta: !real, %UPhi: !real,
 func.func private @nlMag(%UR: !real, %UTheta: !real, %UPhi: !real,
     %MagR: !real, %MagTheta: !real, %MagPhi: !real) -> (!real, !real, !real) {
     // Cross
-    %Cross:3 = quiccir.cross(%UR, %UTheta, %UPhi), (%MagR, %MagTheta, %MagPhi) :
+    %Cross:3 = quiccir.cross (%MagR, %MagTheta, %MagPhi), (%UR, %UTheta, %UPhi) :
         (!real, !real, !real), (!real, !real, !real) ->
         (!real, !real, !real)
         attributes{kind = "induction"}
@@ -358,7 +358,7 @@ func.func private @nlMag(%UR: !real, %UTheta: !real, %UPhi: !real,
 
 func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
    %TorMag: !complex, %PolMag: !complex) -> (!complex, !complex, !complex, !complex, !complex,
-      !real, !real, !real) {
+      !real, !real, !real, !real, !real, !real) {
     %TPhys = call @bwdScalar(%T) : (!complex) -> !real
     %TGrad:3 = call @bwdGradScalar(%T) : (!complex) -> (!real, !real, !real)
     %Vel:3 = call @bwdVector(%TorVel, %PolVel) : (!complex, !complex) -> (!real, !real, !real)
@@ -371,7 +371,7 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
     %TNl = call @fwdScalar(%TPhysNl) : (!real) -> !complex
     %TorVelNl, %PolVelNl = call @fwdVel(%VelNl#0, %VelNl#1, %VelNl#2) : (!real, !real, !real) -> (!complex, !complex)
     %TorMagNl, %PolMagNl = call @fwdMag(%MagNl#0, %MagNl#1, %MagNl#2) : (!real, !real, !real) -> (!complex, !complex)
-    return %TNl, %TorVelNl, %PolVelNl, %TorMagNl, %PolMagNl, %Vel#0, %Vel#1, %Vel#2: !complex, !complex, !complex, !complex, !complex, !real, !real, !real
+    return %TNl, %TorVelNl, %PolVelNl, %TorMagNl, %PolMagNl, %Vel#0, %Vel#1, %Vel#2, %Mag#0, %Mag#1, %Mag#2: !complex, !complex, !complex, !complex, !complex, !real, !real, !real, !real, !real, !real
 }
    )mlir";
 
