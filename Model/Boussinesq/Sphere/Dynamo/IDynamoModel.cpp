@@ -323,7 +323,7 @@ func.func private @nlVel(%UR: !real, %UTheta: !real, %UPhi: !real,
         (!real, !real, !real)
         attributes{kind = "inertia"}
     // Cross Mag
-     %CrossB:3 = quiccir.cross(%CurlBR, %CurlBTheta, %CurlBPhi), (%BR, %BTheta, %BPhi) :
+     %CrossB:3 = quiccir.cross(%BR, %BTheta, %BPhi), (%CurlBR, %CurlBTheta, %CurlBPhi) :
         (!real, !real, !real), (!real, !real, !real) ->
         (!real, !real, !real)
         attributes{kind = "lorentz"}
