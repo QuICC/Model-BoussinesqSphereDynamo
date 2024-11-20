@@ -377,14 +377,14 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
 
    MHDFloat T = 1.0 / spSim->eqParams()->nd(NonDimensional::Ekman::id());
    MHDFloat Ra = spSim->eqParams()->nd(NonDimensional::Rayleigh::id());
-   MHDFloat Pr = spSim->eqParams().nd(NonDimensional::Prandtl::id());
-   MHDFloat Pm = spSim->eqParams().nd(NonDimensional::MagneticPrandtl::id());
+   MHDFloat Pr = spSim->eqParams()->nd(NonDimensional::Prandtl::id());
+   MHDFloat Pm = spSim->eqParams()->nd(NonDimensional::MagneticPrandtl::id());
    Graph::PhysicalParameters<MHDFloat> physParams;
    physParams.transport = 1.0;
    physParams.inertia = 1.0;
    physParams.buoyancy = Pm * Pm * Ra * T / Pr;
    physParams.coriolis = T * Pm;
-   physParams.lorenz = T * Pm;
+   physParams.lorentz = T * Pm;
    physParams.induction = 1.0;
    spSim->addGraph(graphStr, physParams);
 }
