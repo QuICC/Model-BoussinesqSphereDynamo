@@ -94,7 +94,8 @@ void IDynamoModel::addEquations(SharedSimulation spSim)
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Induction>(
       this->spBackend());
 
-      // Add Graph
+   #ifdef QUICC_USE_MLIR_GRAPH
+   // Add Graph
    std::string graphStr = R"mlir(
 // type aliases
 !real = tensor<?x?x?xf64>
@@ -387,6 +388,7 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
    physParams.lorentz = T * Pm;
    physParams.induction = 1.0;
    spSim->addGraph(graphStr, physParams);
+   #endif
 }
 
 void IDynamoModel::addStates(SharedStateGenerator spGen)
