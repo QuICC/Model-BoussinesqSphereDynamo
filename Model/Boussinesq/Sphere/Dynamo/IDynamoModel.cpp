@@ -99,7 +99,7 @@ void IDynamoModel::addEquations(SharedSimulation spSim)
 
    // At this point we only support the explicit model
    // If the jitter is not set up, we default to the old implementation
-   if (this->ss().has(SpatialScheme::Feature::SpectralOrdering123))
+   if (spSim->ss().has(SpatialScheme::Feature::SpectralOrdering123))
    {
       return;
    }
