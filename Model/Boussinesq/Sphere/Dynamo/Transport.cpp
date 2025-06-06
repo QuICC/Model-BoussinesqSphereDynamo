@@ -4,21 +4,12 @@
  * Boussinesq thermal convection dynamo in a sphere
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"

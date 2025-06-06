@@ -4,21 +4,12 @@
  * Boussinesq thermal convection dynamo in a sphere model
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"

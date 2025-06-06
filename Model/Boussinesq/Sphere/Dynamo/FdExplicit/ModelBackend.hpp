@@ -54,7 +54,7 @@ public:
     * @param res  Resolution object
     */
    virtual void equationInfo(EquationInfo& info, const SpectralFieldId& fId,
-      const Resolution& res) const override;
+      const Resolution& res) const final;
 
    /**
     * @brief Get operator information
@@ -67,7 +67,7 @@ public:
     */
    virtual void operatorInfo(OperatorInfo& info, const SpectralFieldId& fId,
       const Resolution& res, const Equations::Tools::ICoupling& coupling,
-      const BcMap& bcs) const override;
+      const BcMap& bcs) const final;
 
    /**
     * @brief Build model matrix
@@ -87,7 +87,7 @@ public:
       const Equations::CouplingInformation::FieldId_range imRange,
       const int matIdx, const std::size_t bcType, const Resolution& res,
       const std::vector<MHDFloat>& eigs, const BcMap& bcs,
-      const NonDimensional::NdMap& nds) const override;
+      const NonDimensional::NdMap& nds) const final;
 
    /**
     * @brief Build galerkin stencil
@@ -104,7 +104,7 @@ public:
    virtual void galerkinStencil(SparseMatrix& mat, const SpectralFieldId& fId,
       const int matIdx, const Resolution& res,
       const std::vector<MHDFloat>& eigs, const bool makeSquare,
-      const BcMap& bcs, const NonDimensional::NdMap& nds) const override;
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const final;
 
    /**
     * @brief Build explicit block
@@ -122,7 +122,7 @@ public:
    virtual void explicitBlock(DecoupledZSparse& mat, const SpectralFieldId& fId,
       const std::size_t opId, const SpectralFieldId fieldId, const int matIdx,
       const Resolution& res, const std::vector<MHDFloat>& eigs,
-      const BcMap& bcs, const NonDimensional::NdMap& nds) const override;
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const final;
 
 protected:
    /**
@@ -226,7 +226,7 @@ private:
       const SpectralFieldId& colId, const int l,
       std::shared_ptr<details::BlockOptions> opts, const Resolution& res,
       const BcMap& bcs, const NonDimensional::NdMap& nds,
-      const bool isSplitOperator) const override;
+      const bool isSplitOperator) const final;
 
    /**
     * @brief Apply galerkin stencil for boundary condition
@@ -244,7 +244,7 @@ private:
    void applyGalerkinStencil(SparseMatrix& decMat, const SpectralFieldId& rowId,
       const SpectralFieldId& colId, const int lr, const int lc,
       std::shared_ptr<details::BlockOptions> opts, const Resolution& res,
-      const BcMap& bcs, const NonDimensional::NdMap& nds) const override;
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const final;
 
    /**
     * @brief Cached radial finite differences grid

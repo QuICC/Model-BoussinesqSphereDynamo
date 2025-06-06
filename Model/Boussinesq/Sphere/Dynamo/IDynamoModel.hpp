@@ -7,15 +7,9 @@
 #ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IDYNAMOMODEL_HPP
 #define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IDYNAMOMODEL_HPP
 
-// Configuration includes
-//
-
 // System includes
 //
 #include <string>
-
-// External includes
-//
 
 // Project includes
 //

@@ -4,21 +4,12 @@
  * (Toroidal/Poloidal formulation)
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/IDynamoModel.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/IDynamoModel.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"

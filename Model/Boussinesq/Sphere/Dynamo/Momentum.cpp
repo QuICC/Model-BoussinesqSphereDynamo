@@ -4,21 +4,12 @@
  * the Boussinesq thermal convection dynamo in a sphere model
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 #include "QuICC/Bc/Name/StressFree.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
@@ -57,8 +48,6 @@ Momentum::Momentum(SharedEquationParameters spEqParams,
    // Set the variable requirements
    this->setRequirements();
 }
-
-Momentum::~Momentum() {}
 
 void Momentum::setCoupling()
 {
