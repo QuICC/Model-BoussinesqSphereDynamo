@@ -3,21 +3,12 @@
  * @brief Source of physical space kernel for the Induction equation
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 #include "QuICC/PhysicalOperators/Cross.hpp"
 
 namespace QuICC {
