@@ -26,6 +26,8 @@
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/Transform/Path/I2CurlCurlNl.hpp"
 #include "QuICC/Transform/Path/I2CurlNl.hpp"
+#include "QuICC/Transform/Path/CurlCurlNl.hpp"
+#include "QuICC/Transform/Path/CurlNl.hpp"
 
 namespace QuICC {
 
@@ -77,11 +79,22 @@ void Induction::setCoupling()
 
 void Induction::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::POL,
-      Transform::Path::I2CurlNl::id());
+   if (this->ss().has(SpatialScheme::Feature::NoQuasiInverse))
+   {
+      this->addNLComponent(FieldComponents::Spectral::POL,
+         Transform::Path::CurlNl::id());
 
-   this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::I2CurlCurlNl::id());
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlCurlNl::id());
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::POL,
+         Transform::Path::I2CurlNl::id());
+
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::I2CurlCurlNl::id());
+   }
 }
 
 void Induction::initNLKernel(const bool force)

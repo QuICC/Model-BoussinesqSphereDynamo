@@ -3,21 +3,12 @@
  * @brief Source of physical space kernel for the Momentum equation
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 #include "QuICC/PhysicalOperators/Cross.hpp"
 #include "QuICC/PhysicalOperators/SphericalBuoyancy.hpp"
 #include "QuICC/PhysicalOperators/SphericalCoriolis.hpp"
