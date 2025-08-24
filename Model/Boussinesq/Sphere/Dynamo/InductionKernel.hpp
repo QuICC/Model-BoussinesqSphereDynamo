@@ -6,18 +6,9 @@
 #ifndef QUICC_PHYSICAL_INDUCTIONKERNEL_HPP
 #define QUICC_PHYSICAL_INDUCTIONKERNEL_HPP
 
-// First include
-//
-
-// Configuration includes
-//
-#include <memory>
-
 // System includes
 //
-
-// External includes
-//
+#include <memory>
 
 // Project includes
 //

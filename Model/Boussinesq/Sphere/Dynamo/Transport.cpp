@@ -4,26 +4,18 @@
  * Boussinesq thermal convection dynamo in a sphere
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/Transform/Path/I2ScalarNl.hpp"
+#include "QuICC/Transform/Path/ScalarNl.hpp"
 
 namespace QuICC {
 
@@ -57,8 +49,16 @@ void Transport::setCoupling()
 
 void Transport::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::SCALAR,
-      Transform::Path::I2ScalarNl::id());
+   if (this->ss().has(SpatialScheme::Feature::NoQuasiInverse))
+   {
+      this->addNLComponent(FieldComponents::Spectral::SCALAR,
+         Transform::Path::ScalarNl::id());
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::SCALAR,
+         Transform::Path::I2ScalarNl::id());
+   }
 }
 
 void Transport::initNLKernel(const bool force)
