@@ -1,5 +1,7 @@
 target_sources(${QUICC_CURRENT_MODEL_LIB} ${QUICC_CMAKE_SRC_VISIBILITY}
+  IDynamoState.cpp
   IDynamoModel.cpp
+  IDynamoVisualization.cpp
   IDynamoBackend.cpp
   Induction.cpp
   InductionKernel.cpp
