@@ -62,7 +62,7 @@ template <typename TBuilder> void PhysicalModel<TBuilder>::init()
 {
    TBuilder::init();
 
-#ifdef QUICC_MODEL_BOUSSINESQSPHERERTC_IMPLICIT_BACKEND_CPP
+#ifdef QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_IMPLICIT_BACKEND_CPP
    this->mpBackend = std::make_shared<ModelBackend>();
 #else
    std::string pyModule = "boussinesq.sphere.dynamo.implicit.physical_model";

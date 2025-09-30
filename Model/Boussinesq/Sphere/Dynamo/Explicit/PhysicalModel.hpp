@@ -63,7 +63,7 @@ private:
 template <typename TBuilder> void PhysicalModel<TBuilder>::init()
 {
    TBuilder::init();
-#ifdef QUICC_MODEL_BOUSSINESQSPHERERTC_EXPLICIT_BACKEND_CPP
+#ifdef QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
 
    this->mpBackend = std::make_shared<ModelBackend>();
 #else

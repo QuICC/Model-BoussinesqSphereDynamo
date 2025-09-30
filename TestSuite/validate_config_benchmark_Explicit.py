@@ -10,7 +10,7 @@ tids = [0]
 tols = [1]
 
 for tid, t in  zip(tids, tols):
-    results.append(vt.checkXml("parameters_template_WLFl.cfg", ref_dir, data_dir, tid))
+    results.append(vt.checkXml("parameters_template_WLFm.cfg", ref_dir, data_dir, tid))
 
 # Output test summary
 vt.printSummary(results, tids, reftol = tols)
