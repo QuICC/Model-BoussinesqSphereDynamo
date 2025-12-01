@@ -14,8 +14,9 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/IDynamoModel.hpp"
 #include "QuICC/SpatialScheme/3D/WLFl.hpp"
+#include "QuICC/Model/PyModelBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Explicit/ModelBackend.hpp"
 
 namespace QuICC {
 
@@ -34,7 +35,7 @@ namespace Explicit {
  * model (Toroidal/Poloidal formulation) without coupled solve (standard
  * implementation)
  */
-class PhysicalModel : public IDynamoModel
+template <typename TBuilder> class PhysicalModel : public TBuilder
 {
 public:
    /// Typedef for the spatial scheme used
@@ -50,9 +51,6 @@ public:
     */
    virtual ~PhysicalModel() = default;
 
-   /// Python script/module name
-   std::string PYMODULE() final;
-
    /**
     * @brief Initialize specialized backend
     */
@@ -61,6 +59,21 @@ public:
 protected:
 private:
 };
+
+template <typename TBuilder> void PhysicalModel<TBuilder>::init()
+{
+   TBuilder::init();
+#ifdef QUICC_MODEL_BOUSSINESQSPHEREDYNAMO_EXPLICIT_BACKEND_CPP
+
+   this->mpBackend = std::make_shared<ModelBackend>();
+#else
+   std::string pyModule = "boussinesq.sphere.dynamo.explicit.physical_model";
+   std::string pyClass = "PhysicalModel";
+
+   this->mpBackend =
+      std::make_shared<PyModelBackend>(pyModule, pyClass);
+#endif
+}
 
 } // namespace Explicit
 } // namespace Dynamo
