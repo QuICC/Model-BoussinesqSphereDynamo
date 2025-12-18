@@ -27,6 +27,10 @@
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
+#include "QuICC/NonDimensional/Ekman.hpp"
+#include "QuICC/NonDimensional/Rayleigh.hpp"
+#include "QuICC/NonDimensional/Prandtl.hpp"
+#include "QuICC/NonDimensional/MagneticPrandtl.hpp"
 
 namespace QuICC {
 
