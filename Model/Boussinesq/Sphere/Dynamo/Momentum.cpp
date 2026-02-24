@@ -4,21 +4,12 @@
  * the Boussinesq thermal convection dynamo in a sphere model
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
 #include "QuICC/Bc/Name/StressFree.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
@@ -31,9 +22,8 @@
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
 #include "QuICC/SpectralKernels/Sphere/ConserveAngularMomentum.hpp"
-#include "QuICC/Transform/Path/I2CurlNl.hpp"
-#include "QuICC/Transform/Path/NegI2CurlCurlNl.hpp"
-#include "QuICC/Transform/Path/NegI4CurlCurlNl.hpp"
+#include "QuICC/Transform/Path/CurlNl.hpp"
+#include "QuICC/Transform/Path/NegCurlCurlNl.hpp"
 
 namespace QuICC {
 
@@ -53,8 +43,6 @@ Momentum::Momentum(SharedEquationParameters spEqParams,
    // Set the variable requirements
    this->setRequirements();
 }
-
-Momentum::~Momentum() {}
 
 void Momentum::setCoupling()
 {
@@ -86,18 +74,10 @@ void Momentum::setCoupling()
 void Momentum::setNLComponents()
 {
    this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::I2CurlNl::id());
+      Transform::Path::CurlNl::id());
 
-   if (this->couplingInfo(FieldComponents::Spectral::POL).isSplitEquation())
-   {
-      this->addNLComponent(FieldComponents::Spectral::POL,
-         Transform::Path::NegI2CurlCurlNl::id());
-   }
-   else
-   {
-      this->addNLComponent(FieldComponents::Spectral::POL,
-         Transform::Path::NegI4CurlCurlNl::id());
-   }
+   this->addNLComponent(FieldComponents::Spectral::POL,
+         Transform::Path::NegCurlCurlNl::id());
 }
 
 void Momentum::initNLKernel(const bool force)
