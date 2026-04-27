@@ -39,7 +39,8 @@ public:
     */
    Induction(SharedEquationParameters spEqParams,
       SpatialScheme::SharedCISpatialScheme spScheme,
-      std::shared_ptr<Model::IModelBackend> spBackend);
+      std::shared_ptr<Model::IModelBackend> spBackend,
+      std::shared_ptr<EquationOptions> spOptions);
 
    /**
     * @brief Simple empty destructor

@@ -1,11 +1,11 @@
 /**
- * @file Momentum.hpp
+ * @file MomentumJacobian.hpp
  * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq
  * thermal convection dynamo sphere
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MOMENTUMJACOBIAN_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MOMENTUMJACOBIAN_HPP
 
 // System includes
 //
@@ -25,11 +25,13 @@ namespace Sphere {
 
 namespace Dynamo {
 
+namespace Exponential {
+
 /**
  * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq
  * thermal convection dynamo in a sphere
  */
-class Momentum : public IVectorEquation
+class MomentumJacobian : public IVectorEquation
 {
 public:
    /**
@@ -37,7 +39,7 @@ public:
     *
     * @param spEqParams  Shared equation parameters
     */
-   Momentum(SharedEquationParameters spEqParams,
+   MomentumJacobian(SharedEquationParameters spEqParams,
       SpatialScheme::SharedCISpatialScheme spScheme,
       std::shared_ptr<Model::IModelBackend> spBackend,
       std::shared_ptr<EquationOptions> spOptions);
@@ -45,7 +47,7 @@ public:
    /**
     * @brief Simple empty destructor
     */
-   virtual ~Momentum() = default;
+   virtual ~MomentumJacobian() = default;
 
    /**
     * @brief Initialize constraint kernel
@@ -79,10 +81,11 @@ protected:
 private:
 };
 
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq
 } // namespace Equations
 } // namespace QuICC
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MOMENTUMJACOBIAN_HPP

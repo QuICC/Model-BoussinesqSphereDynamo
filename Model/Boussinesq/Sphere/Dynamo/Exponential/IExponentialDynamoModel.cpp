@@ -1,5 +1,5 @@
 /**
- * @file IDynamoModel.cpp
+ * @file IExponentialDynamoModel.cpp
  * @brief Source of the Boussinesq thermal convection dynamo in a sphere
  * (Toroidal/Poloidal formulation)
  */
@@ -9,28 +9,17 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/IDynamoModel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoModel.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/InductionJacobian.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/MomentumJacobian.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/TransportJacobian.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/gitHash.hpp"
-#include "QuICC/Io/Variable/SphereAngularMomentumWriter.hpp"
-#include "QuICC/Io/Variable/SphereNusseltWriter.hpp"
-#include "QuICC/Io/Variable/SphereScalarEnergyWriter.hpp"
-#include "QuICC/Io/Variable/SphereScalarLSpectrumWriter.hpp"
-#include "QuICC/Io/Variable/SphereScalarMSpectrumWriter.hpp"
-#include "QuICC/Io/Variable/SphereScalarNSpectrumWriter.hpp"
-#include "QuICC/Io/Variable/SphereTorPolEnergyWriter.hpp"
-#include "QuICC/Io/Variable/SphereTorPolLSpectrumWriter.hpp"
-#include "QuICC/Io/Variable/SphereTorPolMSpectrumWriter.hpp"
-#include "QuICC/Io/Variable/SphereTorPolNSpectrumWriter.hpp"
-#include "QuICC/PhysicalNames/Magnetic.hpp"
-#include "QuICC/PhysicalNames/Temperature.hpp"
-#include "QuICC/PhysicalNames/Velocity.hpp"
-#include "QuICC/NonDimensional/Ekman.hpp"
-#include "QuICC/NonDimensional/Rayleigh.hpp"
-#include "QuICC/NonDimensional/Prandtl.hpp"
-#include "QuICC/NonDimensional/MagneticPrandtl.hpp"
+#include "QuICC/PhysicalNames/JacobianMagnetic.hpp"
+#include "QuICC/PhysicalNames/JacobianTemperature.hpp"
+#include "QuICC/PhysicalNames/JacobianVelocity.hpp"
 
 namespace QuICC {
 
@@ -42,19 +31,22 @@ namespace Sphere {
 
 namespace Dynamo {
 
-VectorFormulation::Id IDynamoModel::SchemeFormulation()
+namespace Exponential {
+
+std::vector<std::size_t> IExponentialDynamoModel::excludedFieldIds() const
 {
-   return VectorFormulation::TORPOL;
+   std::vector<std::size_t> fields = {
+      PhysicalNames::JacobianMagnetic::id(),
+      PhysicalNames::JacobianVelocity::id(),
+      PhysicalNames::JacobianTemperature::id(),
+   };
+
+   return fields;
 }
 
-std::string IDynamoModel::version() const
+void IExponentialDynamoModel::addEquations(SharedSimulation spSim)
 {
-   return "BoussinesqSphereDynamo:" + std::string(gitHash);
-}
-
-void IDynamoModel::addEquations(SharedSimulation spSim)
-{
-   auto optZero = std::make_shared<Equations::EquationOptions>(0);
+   auto optZero = std::make_shared<Equations::EquationOptions>(0, false);
 
    // Add transport equation
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Transport>(
@@ -67,6 +59,20 @@ void IDynamoModel::addEquations(SharedSimulation spSim)
    // Add induction equation
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Induction>(
       this->spBackend(), optZero);
+
+   auto optOne = std::make_shared<Equations::EquationOptions>(1, false);
+
+   // Add transport jacobian equation
+   spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Exponential::TransportJacobian>(
+      this->spBackend(), optOne);
+
+   // Add Navier-Stokes jacobian equation
+   spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Exponential::MomentumJacobian>(
+      this->spBackend(), optOne);
+
+   // Add induction equation
+   spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Exponential::InductionJacobian>(
+      this->spBackend(), optOne);
 
    #ifdef QUICC_USE_MLIR_GRAPH
    // Add Graph
@@ -373,103 +379,7 @@ func.func @entry(%T: !complex, %TorVel: !complex, %PolVel: !complex,
    #endif
 }
 
-std::map<std::string, std::map<std::string, int>>
-IDynamoModel::configTags() const
-{
-   std::map<std::string, int> onOff;
-   onOff.emplace("enable", 1);
-
-   std::map<std::string, int> options;
-   options.emplace("enable", 0);
-   options.emplace("numbered", 0);
-   options.emplace("only_every", 1);
-
-   std::map<std::string, std::map<std::string, int>> tags;
-   // temperature
-   tags.emplace("temperature_energy", onOff);
-   tags.emplace("temperature_l_spectrum", options);
-   tags.emplace("temperature_m_spectrum", options);
-   tags.emplace("temperature_n_spectrum", options);
-   // kinetic
-   tags.emplace("kinetic_energy", onOff);
-   tags.emplace("kinetic_l_spectrum", options);
-   tags.emplace("kinetic_m_spectrum", options);
-   tags.emplace("kinetic_n_spectrum", options);
-   // magnetic
-   tags.emplace("magnetic_energy", onOff);
-   tags.emplace("magnetic_l_spectrum", options);
-   tags.emplace("magnetic_m_spectrum", options);
-   tags.emplace("magnetic_n_spectrum", options);
-   // diagnostic
-   tags.emplace("angular_momentum", onOff);
-   tags.emplace("nusselt", onOff);
-
-   return tags;
-}
-
-void IDynamoModel::addAsciiOutputFiles(SharedSimulation spSim)
-{
-   // Create Nusselt writer
-   this->enableAsciiFile<Io::Variable::SphereNusseltWriter>("nusselt", "",
-      PhysicalNames::Temperature::id(), spSim);
-
-   // Create temperature energy writer
-   this->enableAsciiFile<Io::Variable::SphereScalarEnergyWriter>(
-      "temperature_energy", "temperature", PhysicalNames::Temperature::id(),
-      spSim);
-
-   // Create temperature L energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereScalarLSpectrumWriter>(
-      "temperature_l_spectrum", "temperature", PhysicalNames::Temperature::id(),
-      spSim);
-
-   // Create temperature M energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereScalarMSpectrumWriter>(
-      "temperature_m_spectrum", "temperature", PhysicalNames::Temperature::id(),
-      spSim);
-
-   // Create temperature N power spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereScalarNSpectrumWriter>(
-      "temperature_n_spectrum", "temperature", PhysicalNames::Temperature::id(),
-      spSim);
-
-   // Create kinetic energy writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolEnergyWriter>(
-      "kinetic_energy", "kinetic", PhysicalNames::Velocity::id(), spSim);
-
-   // Create kinetic L energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolLSpectrumWriter>(
-      "kinetic_l_spectrum", "kinetic", PhysicalNames::Velocity::id(), spSim);
-
-   // Create kinetic M energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolMSpectrumWriter>(
-      "kinetic_m_spectrum", "kinetic", PhysicalNames::Velocity::id(), spSim);
-
-   // Create kinetic N power spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolNSpectrumWriter>(
-      "kinetic_n_spectrum", "kinetic", PhysicalNames::Velocity::id(), spSim);
-
-   // Create magnetic energy writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolEnergyWriter>(
-      "magnetic_energy", "magnetic", PhysicalNames::Magnetic::id(), spSim);
-
-   // Create magnetic L energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolLSpectrumWriter>(
-      "magnetic_l_spectrum", "magnetic", PhysicalNames::Magnetic::id(), spSim);
-
-   // Create magnetic M energy spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolMSpectrumWriter>(
-      "magnetic_m_spectrum", "magnetic", PhysicalNames::Magnetic::id(), spSim);
-
-   // Create kinetic N power spectrum writer
-   this->enableAsciiFile<Io::Variable::SphereTorPolNSpectrumWriter>(
-      "magnetic_n_spectrum", "magnetic", PhysicalNames::Magnetic::id(), spSim);
-
-   // Create angular momentum writer
-   this->enableAsciiFile<Io::Variable::SphereAngularMomentumWriter>(
-      "angular_momentum", "", PhysicalNames::Velocity::id(), spSim);
-}
-
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq

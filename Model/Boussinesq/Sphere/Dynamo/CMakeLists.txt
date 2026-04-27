@@ -12,4 +12,5 @@ target_sources(${QUICC_CURRENT_MODEL_LIB} ${QUICC_CMAKE_SRC_VISIBILITY}
   )
 
 add_subdirectory(Explicit)
+add_subdirectory(Exponential)
 add_subdirectory(Implicit)
