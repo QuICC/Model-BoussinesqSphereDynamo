@@ -36,7 +36,7 @@ InductionJacobian::InductionJacobian(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
    std::shared_ptr<Model::IModelBackend> spBackend,
    std::shared_ptr<EquationOptions> spOptions) :
-    IVectorEquation(spEqParams, spScheme, spBackend)
+    IVectorEquation(spEqParams, spScheme, spBackend, spOptions)
 {
    // Set the variable requirements
    this->setRequirements();

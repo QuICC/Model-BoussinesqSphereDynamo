@@ -34,7 +34,7 @@ TransportJacobian::TransportJacobian(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
    std::shared_ptr<Model::IModelBackend> spBackend,
    std::shared_ptr<EquationOptions> spOptions) :
-    IScalarEquation(spEqParams, spScheme, spBackend)
+    IScalarEquation(spEqParams, spScheme, spBackend, spOptions)
 {
    // Set the variable requirements
    this->setRequirements();
