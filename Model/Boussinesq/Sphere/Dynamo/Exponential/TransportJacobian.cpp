@@ -51,8 +51,15 @@ void TransportJacobian::setCoupling()
 
 void TransportJacobian::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::SCALAR,
-      Transform::Path::ScalarNl::id());
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::SCALAR,
+         Transform::Path::ScalarNl::id());
+   }
 }
 
 void TransportJacobian::initNLKernel(const bool force)

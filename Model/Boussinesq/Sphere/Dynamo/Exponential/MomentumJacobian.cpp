@@ -79,11 +79,18 @@ void MomentumJacobian::setCoupling()
 
 void MomentumJacobian::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::CurlNl::id());
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlNl::id());
 
-   this->addNLComponent(FieldComponents::Spectral::POL,
-         Transform::Path::NegCurlCurlNl::id());
+      this->addNLComponent(FieldComponents::Spectral::POL,
+            Transform::Path::NegCurlCurlNl::id());
+   }
 }
 
 void MomentumJacobian::initNLKernel(const bool force)

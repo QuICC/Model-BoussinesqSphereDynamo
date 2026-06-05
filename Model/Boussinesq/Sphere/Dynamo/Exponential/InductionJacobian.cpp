@@ -71,11 +71,18 @@ void InductionJacobian::setCoupling()
 
 void InductionJacobian::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::POL,
-      Transform::Path::CurlNl::id());
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::POL,
+         Transform::Path::CurlNl::id());
 
-   this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::CurlCurlNl::id());
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlCurlNl::id());
+   }
 }
 
 void InductionJacobian::initNLKernel(const bool force)

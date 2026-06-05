@@ -46,7 +46,7 @@ std::vector<std::size_t> IExponentialDynamoModel::excludedFieldIds() const
 
 void IExponentialDynamoModel::addEquations(SharedSimulation spSim)
 {
-   auto optZero = std::make_shared<Equations::EquationOptions>(0, false);
+   auto optZero = std::make_shared<Equations::EquationOptions>(0, false, false);
 
    // Add transport equation
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Transport>(
@@ -60,7 +60,7 @@ void IExponentialDynamoModel::addEquations(SharedSimulation spSim)
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Induction>(
       this->spBackend(), optZero);
 
-   auto optOne = std::make_shared<Equations::EquationOptions>(1, false);
+   auto optOne = std::make_shared<Equations::EquationOptions>(1, false, false);
 
    // Add transport jacobian equation
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Exponential::TransportJacobian>(

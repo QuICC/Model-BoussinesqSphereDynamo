@@ -55,6 +55,19 @@ namespace Sphere {
 
 namespace Dynamo {
 
+namespace {
+   const auto mag_tor = std::make_pair(PhysicalNames::Magnetic::id(),
+                   FieldComponents::Spectral::TOR);
+   const auto mag_pol = std::make_pair(PhysicalNames::Magnetic::id(),
+                   FieldComponents::Spectral::POL);
+   const auto vel_tor = std::make_pair(PhysicalNames::Velocity::id(),
+                   FieldComponents::Spectral::TOR);
+   const auto vel_pol = std::make_pair(PhysicalNames::Velocity::id(),
+                   FieldComponents::Spectral::POL);
+   const auto temp = std::make_pair(PhysicalNames::Temperature::id(),
+                   FieldComponents::Spectral::SCALAR);
+}
+
 std::vector<std::string> IDynamoBackend::fieldNames() const
 {
    std::vector<std::string> names = {
@@ -103,17 +116,6 @@ int IDynamoBackend::nBc(const SpectralFieldId& fId) const
 {
    int nBc = 0;
 
-   auto mag_tor = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::TOR);
-   auto mag_pol = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::POL);
-   auto vel_tor = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::TOR);
-   auto vel_pol = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::POL);
-   auto temp = std::make_pair(PhysicalNames::Temperature::id(),
-                   FieldComponents::Spectral::SCALAR);
-
    if (fId == vel_tor ||
        fId == temp ||
        fId == mag_tor ||
@@ -152,17 +154,6 @@ void IDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
    auto bcId = bcs.find(rowId.first)->second;
 
    SparseSM::Worland::Boundary::Operator bcOp(nN, nN, a, b, l);
-
-   auto mag_tor = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::TOR);
-   auto mag_pol = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::POL);
-   auto vel_tor = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::TOR);
-   auto vel_pol = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::POL);
-   auto temp = std::make_pair(PhysicalNames::Temperature::id(),
-                   FieldComponents::Spectral::SCALAR);
 
    if (rowId == vel_tor &&
        rowId == colId)
@@ -291,17 +282,6 @@ void IDynamoBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
    auto b = Polynomial::Worland::worland_default_t::DBETA;
 
    auto bcId = bcs.find(fieldId.first)->second;
-
-   auto mag_tor = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::TOR);
-   auto mag_pol = std::make_pair(PhysicalNames::Magnetic::id(),
-                   FieldComponents::Spectral::POL);
-   auto vel_tor = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::TOR);
-   auto vel_pol = std::make_pair(PhysicalNames::Velocity::id(),
-                   FieldComponents::Spectral::POL);
-   auto temp = std::make_pair(PhysicalNames::Temperature::id(),
-                   FieldComponents::Spectral::SCALAR);
 
    int s = this->nBc(fieldId);
    if(bcId == Bc::Name::QuasiInverseOnly::id())
