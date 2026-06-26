@@ -1,11 +1,11 @@
 /**
- * @file IExponentialDynamoModel.hpp
+ * @file IExponentialModel.hpp
  * @brief Implementation of the Boussinesq thermal convection dynamo in a sphere
  * model (Toroidal/Poloidal formulation)
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOMODEL_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOMODEL_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALMODEL_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALMODEL_HPP
 
 // System includes
 //
@@ -32,18 +32,18 @@ namespace Exponential {
  * @brief Implementation of the Boussinesq thermal convection dynamo in a sphere
  * model (Toroidal/Poloidal formulation)
  */
-class IExponentialDynamoModel : public IDynamoModel
+class IExponentialModel : public IDynamoModel
 {
 public:
    /**
     * @brief Constructor
     */
-   IExponentialDynamoModel() = default;
+   IExponentialModel() = default;
 
    /**
     * @brief Destructor
     */
-   virtual ~IExponentialDynamoModel() = default;
+   virtual ~IExponentialModel() = default;
 
    /**
     * @brief Exclude fields from initial state
@@ -68,4 +68,4 @@ private:
 } // namespace Model
 } // namespace QuICC
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOMODEL_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALMODEL_HPP

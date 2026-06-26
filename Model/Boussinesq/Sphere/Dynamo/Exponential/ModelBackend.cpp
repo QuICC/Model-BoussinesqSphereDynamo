@@ -113,7 +113,7 @@ namespace {
 }
 
 ModelBackend::ModelBackend() :
-    IExponentialDynamoBackend(),
+    IExponentialBackend(),
     mcTruncateQI(true)
 {}
 

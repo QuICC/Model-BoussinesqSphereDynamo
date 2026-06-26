@@ -1,10 +1,10 @@
 /**
- * @file IExponentialDynamoBackend.hpp
+ * @file IExponentialBackend.hpp
  * @brief Base model backend for dynamo model
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOBACKEND_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOBACKEND_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALBACKEND_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALBACKEND_HPP
 
 // System includes
 //
@@ -32,18 +32,18 @@ namespace Exponential {
 /**
  * @brief Base model backend for Dynamo model
  */
-class IExponentialDynamoBackend : public IDynamoBackend
+class IExponentialBackend : public IDynamoBackend
 {
 public:
    /**
     * @brief Constructor
     */
-   IExponentialDynamoBackend() = default;
+   IExponentialBackend() = default;
 
    /**
     * @brief Destructor
     */
-   virtual ~IExponentialDynamoBackend() = default;
+   virtual ~IExponentialBackend() = default;
 
    /**
     * @brief Get vector of names for the physical fields
@@ -102,4 +102,4 @@ private:
 } // namespace Model
 } // namespace QuICC
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALDYNAMOBACKEND_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_IEXPONENTIALBACKEND_HPP

@@ -77,7 +77,7 @@ public:
     */
    virtual void operatorInfo(OperatorInfo& info, const SpectralFieldId& fId,
       const Resolution& res, const Equations::Tools::ICoupling& coupling,
-      const BcMap& bcs) const override;
+      const BcMap& bcs, const bool allowGalerkin) const override;
 
 protected:
    /**

@@ -1,5 +1,5 @@
 /**
- * @file IExponentialDynamoModel.cpp
+ * @file IExponentialModel.cpp
  * @brief Source of the Boussinesq thermal convection dynamo in a sphere
  * (Toroidal/Poloidal formulation)
  */
@@ -9,7 +9,7 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoModel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialModel.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
@@ -33,7 +33,7 @@ namespace Dynamo {
 
 namespace Exponential {
 
-std::vector<std::size_t> IExponentialDynamoModel::excludedFieldIds() const
+std::vector<std::size_t> IExponentialModel::excludedFieldIds() const
 {
    std::vector<std::size_t> fields = {
       PhysicalNames::JacobianMagnetic::id(),
@@ -44,7 +44,7 @@ std::vector<std::size_t> IExponentialDynamoModel::excludedFieldIds() const
    return fields;
 }
 
-void IExponentialDynamoModel::addEquations(SharedSimulation spSim)
+void IExponentialModel::addEquations(SharedSimulation spSim)
 {
    auto optZero = std::make_shared<Equations::EquationOptions>(0, false, false);
 

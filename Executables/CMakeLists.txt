@@ -143,8 +143,8 @@ set(ClassPhysicalModel "QuICC::Model::Boussinesq::Sphere::Dynamo::Exponential::P
 set(Exe "Config")
 set(Factory "QuICC/Model/ConfigFactory.hpp")
 set(ClassFactory "QuICC::ConfigFactory")
-set(Builder "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoModel.hpp")
-set(ClassBuilder "QuICC::Model::Boussinesq::Sphere::Dynamo::Exponential::IExponentialDynamoModel")
+set(Builder "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialModel.hpp")
+set(ClassBuilder "QuICC::Model::Boussinesq::Sphere::Dynamo::Exponential::IExponentialModel")
 set(source_ "${CMAKE_CURRENT_BINARY_DIR}/${Type}/Run${Exe}.cpp")
 configure_file(RunExe.cpp.in ${source_} @ONLY)
 
@@ -171,8 +171,8 @@ quicc_setup_exe(${ModelId}
 set(Exe "Model")
 set(Factory "QuICC/Model/ModelFactory.hpp")
 set(ClassFactory "QuICC::ModelFactory")
-set(Builder "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoModel.hpp")
-set(ClassBuilder "QuICC::Model::Boussinesq::Sphere::Dynamo::Exponential::IExponentialDynamoModel")
+set(Builder "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialModel.hpp")
+set(ClassBuilder "QuICC::Model::Boussinesq::Sphere::Dynamo::Exponential::IExponentialModel")
 set(source_ "${CMAKE_CURRENT_BINARY_DIR}/${Type}/Run${Exe}.cpp")
 configure_file(RunExe.cpp.in ${source_} @ONLY)
 

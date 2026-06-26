@@ -1,5 +1,5 @@
 /**
- * @file IExponentialDynamoBackend.cpp
+ * @file IExponentialBackend.cpp
  * @brief Source of the interface for model backend
  */
 
@@ -9,7 +9,7 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialBackend.hpp"
 #include "QuICC/Bc/Name/FixedFlux.hpp"
 #include "QuICC/Bc/Name/FixedTemperature.hpp"
 #include "QuICC/Bc/Name/Insulating.hpp"
@@ -74,7 +74,7 @@ namespace {
                    FieldComponents::Spectral::SCALAR);
 }
 
-std::vector<std::string> IExponentialDynamoBackend::fieldNames() const
+std::vector<std::string> IExponentialBackend::fieldNames() const
 {
    std::vector<std::string> names = {
       PhysicalNames::Velocity().tag(),
@@ -87,7 +87,7 @@ std::vector<std::string> IExponentialDynamoBackend::fieldNames() const
    return names;
 }
 
-int IExponentialDynamoBackend::nBc(const SpectralFieldId& fId) const
+int IExponentialBackend::nBc(const SpectralFieldId& fId) const
 {
    int nBc = 0;
 
@@ -115,7 +115,7 @@ int IExponentialDynamoBackend::nBc(const SpectralFieldId& fId) const
    return nBc;
 }
 
-void IExponentialDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
+void IExponentialBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
    const SpectralFieldId& colId, const int l,
    std::shared_ptr<details::BlockOptions> opts, const int nN,
    const BcMap& bcs, const NonDimensional::NdMap& nds,
@@ -243,11 +243,15 @@ void IExponentialDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldI
             std::to_string(bcId) + ")");
       }
    }
+   else
+   {
+      throw std::logic_error("Unknown field for boundary conditions");
+   }
 
    mat.real() += bcOp.mat();
 }
 
-void IExponentialDynamoBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
+void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
    const int l, const int nN, const bool makeSquare, const BcMap& bcs,
    const NonDimensional::NdMap& nds) const
 {

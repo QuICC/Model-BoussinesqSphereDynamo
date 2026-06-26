@@ -12,7 +12,7 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialDynamoBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialBackend.hpp"
 
 namespace QuICC {
 
@@ -29,7 +29,7 @@ namespace Exponential {
 /**
  * @brief Interface for model backend
  */
-class ModelBackend : public IExponentialDynamoBackend
+class ModelBackend : public IExponentialBackend
 {
 public:
    /**

@@ -1,6 +1,6 @@
 target_sources(${QUICC_CURRENT_MODEL_LIB}_exponential ${QUICC_CMAKE_SRC_VISIBILITY}
-  IExponentialDynamoBackend.cpp
-  IExponentialDynamoModel.cpp
+  IExponentialBackend.cpp
+  IExponentialModel.cpp
   InductionJacobian.cpp
   InductionJacobianKernel.cpp
   ModelBackend.cpp
