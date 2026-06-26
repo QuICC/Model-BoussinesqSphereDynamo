@@ -1,11 +1,11 @@
 /**
- * @file Momentum.hpp
- * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq
+ * @file InductionJacobian.hpp
+ * @brief Implementation of the vector induction equation for the Boussinesq
  * thermal convection dynamo sphere
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_INDUCTIONJACOBIAN_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_INDUCTIONJACOBIAN_HPP
 
 // System includes
 //
@@ -25,11 +25,13 @@ namespace Sphere {
 
 namespace Dynamo {
 
+namespace Exponential {
+
 /**
- * @brief Implementation of the vector Navier-Stokes equation for the Boussinesq
+ * @brief Implementation of the vector induction equation for the Boussinesq
  * thermal convection dynamo in a sphere
  */
-class Momentum : public IVectorEquation
+class InductionJacobian : public IVectorEquation
 {
 public:
    /**
@@ -37,7 +39,7 @@ public:
     *
     * @param spEqParams  Shared equation parameters
     */
-   Momentum(SharedEquationParameters spEqParams,
+   InductionJacobian(SharedEquationParameters spEqParams,
       SpatialScheme::SharedCISpatialScheme spScheme,
       std::shared_ptr<Model::IModelBackend> spBackend,
       std::shared_ptr<EquationOptions> spOptions);
@@ -45,15 +47,7 @@ public:
    /**
     * @brief Simple empty destructor
     */
-   virtual ~Momentum() = default;
-
-   /**
-    * @brief Initialize constraint kernel
-    *
-    * @param spMesh  Physical space mesh
-    */
-   void initConstraintKernel(
-      const std::shared_ptr<std::vector<Array>> spMesh) final;
+   virtual ~InductionJacobian() = default;
 
    /**
     * @brief Initialize nonlinear interaction kernel
@@ -79,10 +73,11 @@ protected:
 private:
 };
 
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq
 } // namespace Equations
 } // namespace QuICC
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_MOMENTUM_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_INDUCTIONJACOBIAN_HPP

@@ -1,5 +1,5 @@
 /**
- * @file Momentum.cpp
+ * @file MomentumJacobian.cpp
  * @brief Source of the implementation of the vector Navier-Stokes equation in
  * the Boussinesq thermal convection dynamo in a sphere model
  */
@@ -9,13 +9,16 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Momentum.hpp"
-#include "Model/Boussinesq/Sphere/Dynamo/MomentumKernel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/MomentumJacobian.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/MomentumJacobianKernel.hpp"
 #include "QuICC/Bc/Name/StressFree.hpp"
 #include "QuICC/NonDimensional/Ekman.hpp"
 #include "QuICC/NonDimensional/MagneticPrandtl.hpp"
 #include "QuICC/NonDimensional/Prandtl.hpp"
 #include "QuICC/NonDimensional/Rayleigh.hpp"
+#include "QuICC/PhysicalNames/JacobianMagnetic.hpp"
+#include "QuICC/PhysicalNames/JacobianTemperature.hpp"
+#include "QuICC/PhysicalNames/JacobianVelocity.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
@@ -35,7 +38,9 @@ namespace Sphere {
 
 namespace Dynamo {
 
-Momentum::Momentum(SharedEquationParameters spEqParams,
+namespace Exponential {
+
+MomentumJacobian::MomentumJacobian(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
    std::shared_ptr<Model::IModelBackend> spBackend,
    std::shared_ptr<EquationOptions> spOptions) :
@@ -45,7 +50,7 @@ Momentum::Momentum(SharedEquationParameters spEqParams,
    this->setRequirements();
 }
 
-void Momentum::setCoupling()
+void MomentumJacobian::setCoupling()
 {
    int start;
    if (this->ss().has(SpatialScheme::Feature::SpectralOrdering132))
@@ -72,16 +77,23 @@ void Momentum::setCoupling()
       CouplingInformation::PROGNOSTIC, start, features);
 }
 
-void Momentum::setNLComponents()
+void MomentumJacobian::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::CurlNl::id());
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlNl::id());
 
-   this->addNLComponent(FieldComponents::Spectral::POL,
-         Transform::Path::NegCurlCurlNl::id());
+      this->addNLComponent(FieldComponents::Spectral::POL,
+            Transform::Path::NegCurlCurlNl::id());
+   }
 }
 
-void Momentum::initNLKernel(const bool force)
+void MomentumJacobian::initNLKernel(const bool force)
 {
    // Initialize if empty or forced
    if (force || !this->mspNLKernel)
@@ -91,10 +103,15 @@ void Momentum::initNLKernel(const bool force)
       MHDFloat Ra = this->eqParams().nd(NonDimensional::Rayleigh::id());
       MHDFloat Pr = this->eqParams().nd(NonDimensional::Prandtl::id());
       MHDFloat Pm = this->eqParams().nd(NonDimensional::MagneticPrandtl::id());
-      auto spNLKernel = std::make_shared<Physical::Kernel::MomentumKernel>();
-      spNLKernel->setVelocity(this->name(), this->spUnknown());
+      auto spNLKernel = std::make_shared<Physical::Kernel::MomentumJacobianKernel>();
+      spNLKernel->setJacobianVelocity(this->name(), this->spUnknown());
+      spNLKernel->setVelocity(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
+      spNLKernel->setJacobianTemperature(PhysicalNames::JacobianTemperature::id(),
+         this->spScalar(PhysicalNames::JacobianTemperature::id()));
       spNLKernel->setTemperature(PhysicalNames::Temperature::id(),
          this->spScalar(PhysicalNames::Temperature::id()));
+      spNLKernel->setJacobianMagnetic(PhysicalNames::JacobianMagnetic::id(),
+         this->spVector(PhysicalNames::JacobianMagnetic::id()));
       spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(),
          this->spVector(PhysicalNames::Magnetic::id()));
       MHDFloat sgn = 1;
@@ -107,7 +124,7 @@ void Momentum::initNLKernel(const bool force)
    }
 }
 
-void Momentum::initConstraintKernel(const std::shared_ptr<std::vector<Array>>)
+void MomentumJacobian::initConstraintKernel(const std::shared_ptr<std::vector<Array>>)
 {
    if (this->bcIds().bcId(this->name()) == Bc::Name::StressFree::id())
    {
@@ -123,10 +140,10 @@ void Momentum::initConstraintKernel(const std::shared_ptr<std::vector<Array>>)
    }
 }
 
-void Momentum::setRequirements()
+void MomentumJacobian::setRequirements()
 {
    // Set velocity as equation unknown
-   this->setName(PhysicalNames::Velocity::id());
+   this->setName(PhysicalNames::JacobianVelocity::id());
 
    // Set solver timing
    this->setSolveTiming(SolveTiming::Prognostic::id());
@@ -138,6 +155,13 @@ void Momentum::setRequirements()
    const auto& ss = this->ss();
 
    // Add velocity to requirements: is scalar?
+   auto& jvelReq = this->mRequirements.addField(PhysicalNames::JacobianVelocity::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jvelReq.enableSpectral();
+   jvelReq.enablePhysical();
+   jvelReq.enableCurl();
+
+   // Add velocity to requirements: is scalar?
    auto& velReq = this->mRequirements.addField(PhysicalNames::Velocity::id(),
       FieldRequirement(false, ss.spectral(), ss.physical()));
    velReq.enableSpectral();
@@ -145,11 +169,25 @@ void Momentum::setRequirements()
    velReq.enableCurl();
 
    // Add temperature to requirements: is scalar?
+   auto& jtempReq =
+      this->mRequirements.addField(PhysicalNames::JacobianTemperature::id(),
+         FieldRequirement(true, ss.spectral(), ss.physical()));
+   jtempReq.enableSpectral();
+   jtempReq.enablePhysical();
+
+   // Add temperature to requirements: is scalar?
    auto& tempReq =
       this->mRequirements.addField(PhysicalNames::Temperature::id(),
          FieldRequirement(true, ss.spectral(), ss.physical()));
    tempReq.enableSpectral();
    tempReq.enablePhysical();
+
+   // Add magnetic to requirements: is scalar?
+   auto& jmagReq = this->mRequirements.addField(PhysicalNames::JacobianMagnetic::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jmagReq.enableSpectral();
+   jmagReq.enablePhysical();
+   jmagReq.enableCurl();
 
    // Add magnetic to requirements: is scalar?
    auto& magReq = this->mRequirements.addField(PhysicalNames::Magnetic::id(),
@@ -171,6 +209,7 @@ void Momentum::setRequirements()
              .needPhysicalCurl());
 }
 
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq

@@ -3,8 +3,8 @@
  * @brief Model backend
  */
 
-#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_MODELBACKEND_HPP
-#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_MODELBACKEND_HPP
+#ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MODELBACKEND_HPP
+#define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MODELBACKEND_HPP
 
 // System includes
 //
@@ -12,7 +12,7 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/IDynamoBackend.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/IExponentialBackend.hpp"
 
 namespace QuICC {
 
@@ -24,12 +24,12 @@ namespace Sphere {
 
 namespace Dynamo {
 
-namespace Implicit {
+namespace Exponential {
 
 /**
  * @brief Interface for model backend
  */
-class ModelBackend : public IDynamoBackend
+class ModelBackend : public IExponentialBackend
 {
 public:
    /**
@@ -41,13 +41,6 @@ public:
     * @brief Destructor
     */
    virtual ~ModelBackend() = default;
-
-   /**
-    * @brief Enable splitting 4th equation into two 2nd order?
-    *
-    * @param flag True/False to enable option
-    */
-   virtual void enableSplitEquation(const bool flag) override;
 
    /**
     * @brief Get equation information
@@ -130,6 +123,13 @@ protected:
    SpectralFieldIds implicitFields(const SpectralFieldId& fId) const final;
 
    /**
+    * @brief Get coupled fields
+    *
+    * @param fId  Field ID
+    */
+   SpectralFieldIds explicitFields(const SpectralFieldId& fId) const;
+
+   /**
     * @brief Build implicit matrix block description
     *
     * @param rowId   Field ID of block matrix row
@@ -162,6 +162,21 @@ protected:
       const BcMap& bcs, const NonDimensional::NdMap& nds) const;
 
    /**
+    * @brief Build explicit linear matrix block description
+    *
+    * @param rowId   Field ID of block matrix row
+    * @param colId   Field ID of block matrix column
+    * @param res     Resolution object
+    * @param eigs    Slow indexes
+    * @param bcs     Boundary conditions for each field
+    * @param nds     Nondimension parameters
+    */
+   details::BlockDefinition explicitLinearBlockBuilder(
+      const SpectralFieldId& rowId, const SpectralFieldId& colId,
+      const Resolution& res, const std::vector<MHDFloat>& eigs,
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const;
+
+   /**
     * @brief Build quasi-inverse matrix block description
     *
     * @param rowId   Field ID of block matrix row
@@ -174,7 +189,7 @@ protected:
    details::BlockDefinition qiBlockBuilder(
       const SpectralFieldId& rowId, const SpectralFieldId& colId,
       const Resolution& res, const std::vector<MHDFloat>& eigs,
-      const BcMap& bcs, const NonDimensional::NdMap& nds) const;
+      const BcMap& bcs, const NonDimensional::NdMap& nds, const bool isSplitOperator) const;
 
    /**
     * @brief Build boundary matrix block description
@@ -193,6 +208,21 @@ protected:
       const BcMap& bcs, const NonDimensional::NdMap& nds,
       const bool isSplitOperator) const;
 
+   /**
+    * @brief Build boundary matrix block description
+    *
+    * @param rowId   Field ID of block matrix row
+    * @param colId   Field ID of block matrix column
+    * @param res     Resolution object
+    * @param eigs    Slow indexes
+    * @param bcs     Boundary conditions for each field
+    * @param nds     Nondimension parameters
+    */
+   details::BlockDefinition splitBoundaryValueBlockBuilder(
+      const SpectralFieldId& rowId, const SpectralFieldId& colId,
+      const Resolution& res, const std::vector<MHDFloat>& eigs,
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const;
+
 private:
    /**
     * @brief Truncate quasi-inverse operators?
@@ -200,11 +230,11 @@ private:
    const bool mcTruncateQI;
 };
 
-} // namespace Implicit
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq
 } // namespace Model
 } // namespace QuICC
 
-#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_IMPLICIT_MODELBACKEND_HPP
+#endif // QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_EXPONENTIAL_MODELBACKEND_HPP

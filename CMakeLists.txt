@@ -8,7 +8,7 @@ string(TOLOWER "quicc_${QUICC_CURRENT_MODEL_DIRNAME}" QUICC_CURRENT_MODEL_LIB)
 # Model library
 include(ConfigureModel)
 quicc_add_model(Boussinesq/Sphere/Dynamo
-  TYPES Explicit Implicit
+  TYPES Explicit Implicit Exponential
   MODEL_DIRNAME ${QUICC_CURRENT_MODEL_DIRNAME})
 
 add_subdirectory(Executables)

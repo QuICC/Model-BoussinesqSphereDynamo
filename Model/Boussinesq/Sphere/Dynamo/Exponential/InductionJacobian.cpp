@@ -1,5 +1,5 @@
 /**
- * @file Induction.cpp
+ * @file InductionJacobian.cpp
  * @brief Source of the implementation of the vector induction equation in the
  * Boussinesq thermal convection dynamo in a sphere model
  */
@@ -9,8 +9,10 @@
 
 // Project includes
 //
-#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
-#include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/InductionJacobian.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/InductionJacobianKernel.hpp"
+#include "QuICC/PhysicalNames/JacobianMagnetic.hpp"
+#include "QuICC/PhysicalNames/JacobianVelocity.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
@@ -28,7 +30,9 @@ namespace Sphere {
 
 namespace Dynamo {
 
-Induction::Induction(SharedEquationParameters spEqParams,
+namespace Exponential {
+
+InductionJacobian::InductionJacobian(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
    std::shared_ptr<Model::IModelBackend> spBackend,
    std::shared_ptr<EquationOptions> spOptions) :
@@ -38,7 +42,7 @@ Induction::Induction(SharedEquationParameters spEqParams,
    this->setRequirements();
 }
 
-void Induction::setCoupling()
+void InductionJacobian::setCoupling()
 {
    int start;
    if (this->ss().has(SpatialScheme::Feature::SpectralOrdering132))
@@ -65,23 +69,33 @@ void Induction::setCoupling()
       CouplingInformation::PROGNOSTIC, start, features);
 }
 
-void Induction::setNLComponents()
+void InductionJacobian::setNLComponents()
 {
-   this->addNLComponent(FieldComponents::Spectral::POL,
-      Transform::Path::CurlNl::id());
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::POL,
+         Transform::Path::CurlNl::id());
 
-   this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::CurlCurlNl::id());
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlCurlNl::id());
+   }
 }
 
-void Induction::initNLKernel(const bool force)
+void InductionJacobian::initNLKernel(const bool force)
 {
    // Initialize if empty or forced
    if (force || !this->mspNLKernel)
    {
       // Initialize the physical kernel
-      auto spNLKernel = std::make_shared<Physical::Kernel::InductionKernel>();
-      spNLKernel->setMagnetic(this->name(), this->spUnknown());
+      auto spNLKernel = std::make_shared<Physical::Kernel::InductionJacobianKernel>();
+      spNLKernel->setJacobianMagnetic(this->name(), this->spUnknown());
+      spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(), this->spVector(PhysicalNames::Magnetic::id()));
+      spNLKernel->setJacobianVelocity(PhysicalNames::JacobianVelocity::id(),
+         this->spVector(PhysicalNames::JacobianVelocity::id()));
       spNLKernel->setVelocity(PhysicalNames::Velocity::id(),
          this->spVector(PhysicalNames::Velocity::id()));
       MHDFloat sgn = 1;
@@ -94,10 +108,10 @@ void Induction::initNLKernel(const bool force)
    }
 }
 
-void Induction::setRequirements()
+void InductionJacobian::setRequirements()
 {
    // Set velocity as equation unknown
-   this->setName(PhysicalNames::Magnetic::id());
+   this->setName(PhysicalNames::JacobianMagnetic::id());
 
    // Set solver timing
    this->setSolveTiming(SolveTiming::Prognostic::id());
@@ -106,7 +120,13 @@ void Induction::setRequirements()
    this->setForwardPathsType(FWD_IS_NONLINEAR);
 
    // Get reference to spatial scheme
-   const auto& ss = this->ss();
+  const auto& ss = this->ss();
+ 
+   // Add Magnetic to requirements
+   auto& jmagReq = this->mRequirements.addField(PhysicalNames::JacobianMagnetic::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jmagReq.enableSpectral();
+   jmagReq.enablePhysical();
 
    // Add Magnetic to requirements
    auto& magReq = this->mRequirements.addField(PhysicalNames::Magnetic::id(),
@@ -115,12 +135,19 @@ void Induction::setRequirements()
    magReq.enablePhysical();
 
    // Add velocity to requirements: is scalar?
+   auto& jvelReq = this->mRequirements.addField(PhysicalNames::JacobianVelocity::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jvelReq.enableSpectral();
+   jvelReq.enablePhysical();
+
+   // Add velocity to requirements: is scalar?
    auto& velReq = this->mRequirements.addField(PhysicalNames::Velocity::id(),
       FieldRequirement(false, ss.spectral(), ss.physical()));
    velReq.enableSpectral();
    velReq.enablePhysical();
 }
 
+} // namespace Exponential
 } // namespace Dynamo
 } // namespace Sphere
 } // namespace Boussinesq
