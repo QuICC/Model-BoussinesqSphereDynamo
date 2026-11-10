@@ -153,7 +153,7 @@ void MomentumJacobianKernel::compute(Framework::Selector::PhysicalScalarField& r
             Physical::Cross<FieldComponents::Physical::PHI,
                FieldComponents::Physical::R>::add(rNLComp, jm->dom(0).phys(),
                m->dom(0).curl(), this->mLorentz);
-      break;
+            break;
          case (FieldComponents::Physical::PHI):
             Physical::Cross<FieldComponents::Physical::R,
                FieldComponents::Physical::THETA>::set(rNLComp, v->dom(0).curl(),

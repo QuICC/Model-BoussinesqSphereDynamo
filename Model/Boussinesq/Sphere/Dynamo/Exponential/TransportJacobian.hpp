@@ -52,23 +52,23 @@ public:
    /**
     * @brief Initialize nonlinear interaction kernel
     */
-   virtual void initNLKernel(const bool force = false) override;
+   void initNLKernel(const bool force = false) final;
 
 protected:
    /**
     * @brief Set nonlinear component path
     */
-   virtual void setNLComponents() override;
+   void setNLComponents() final;
 
    /**
     * @brief Set variable requirements
     */
-   virtual void setRequirements() override;
+   void setRequirements() final;
 
    /**
     * @brief Set the equation coupling information
     */
-   virtual void setCoupling() override;
+   void setCoupling() final;
 
 private:
 };

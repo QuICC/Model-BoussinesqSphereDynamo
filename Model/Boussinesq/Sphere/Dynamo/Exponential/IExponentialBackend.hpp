@@ -88,9 +88,9 @@ protected:
     * @param bcs        Boundary conditions
     * @param nds        Nondimensional parameters
     */
-   void stencil(SparseMatrix& mat, const SpectralFieldId& fId, const int l,
+   virtual void stencil(SparseMatrix& mat, const SpectralFieldId& fId, const int l,
       const int nN, const bool makeSquare, const BcMap& bcs,
-      const NonDimensional::NdMap& nds) const;
+      const NonDimensional::NdMap& nds) const override;
 
 private:
 };

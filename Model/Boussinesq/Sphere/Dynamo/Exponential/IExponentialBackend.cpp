@@ -38,6 +38,11 @@
 #include "QuICC/SparseSM/Worland/Stencil/Value.hpp"
 #include "QuICC/SparseSM/Worland/Stencil/ValueD1.hpp"
 #include "QuICC/SparseSM/Worland/Stencil/ValueD2.hpp"
+#include "DenseSM/Worland/Stencil/OrthogonalValue.hpp"
+#include "DenseSM/Worland/Stencil/OrthogonalValueD1.hpp"
+#include "DenseSM/Worland/Stencil/OrthogonalInsulating.hpp"
+
+#define QUICC_USE_ORTHOGONAL_STENCIL
 
 namespace QuICC {
 
@@ -272,13 +277,22 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       {
          if (bcId == Bc::Name::NoSlip::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            DenseSM::Worland::Stencil::OrthogonalValue bc(nN, nN - s, a, b, l, 0);
+            mat = bc.spmat();
+#else
             SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else if (bcId == Bc::Name::StressFree::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            throw std::logic_error("Orthogonal stencil for toroidal stress-free boundary not yet implemented");
+#else
             SparseSM::Worland::Stencil::R1D1DivR1 bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else
          {
@@ -290,13 +304,22 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       {
          if (bcId == Bc::Name::NoSlip::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            DenseSM::Worland::Stencil::OrthogonalValueD1 bc(nN, nN - s, a, b, l, 1);
+            mat = bc.spmat();
+#else
             SparseSM::Worland::Stencil::ValueD1 bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else if (bcId == Bc::Name::StressFree::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            throw std::logic_error("Orthogonal stencil for poloidal stress-free boundary not yet implemented");
+#else
             SparseSM::Worland::Stencil::ValueD2 bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else
          {
@@ -308,8 +331,13 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       {
          if (bcId == Bc::Name::Insulating::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            DenseSM::Worland::Stencil::OrthogonalValue bc(nN, nN - s, a, b, l, 0);
+            mat = bc.spmat();
+#else
             SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else
          {
@@ -321,8 +349,13 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       {
          if (bcId == Bc::Name::Insulating::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            DenseSM::Worland::Stencil::OrthogonalInsulating bc(nN, nN - s, a, b, l, 0);
+            mat = bc.spmat();
+#else
             SparseSM::Worland::Stencil::InsulatingSphere bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else
          {
@@ -334,13 +367,22 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       {
          if (bcId == Bc::Name::FixedTemperature::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            DenseSM::Worland::Stencil::OrthogonalValue bc(nN, nN - s, a, b, l, 2);
+            mat = bc.spmat();
+#else
             SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else if (bcId == Bc::Name::FixedFlux::id())
          {
+#ifdef QUICC_USE_ORTHOGONAL_STENCIL
+            throw std::logic_error("Orthogonal stencil for fixed-flux boundary not yet implemented");
+#else
             SparseSM::Worland::Stencil::D1 bc(nN, nN - s, a, b, l);
             mat = bc.mat();
+#endif
          }
          else
          {

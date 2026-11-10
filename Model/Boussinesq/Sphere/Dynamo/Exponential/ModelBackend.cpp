@@ -36,12 +36,9 @@
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/Polynomial/Worland/WorlandTypes.hpp"
 #include "QuICC/Resolutions/Tools/IndexCounter.hpp"
-#include "QuICC/SparseSM/Worland/I2.hpp"
-#include "QuICC/SparseSM/Worland/I2Lapl.hpp"
-#include "QuICC/SparseSM/Worland/I4.hpp"
-#include "QuICC/SparseSM/Worland/I4Lapl.hpp"
-#include "QuICC/SparseSM/Worland/I4Lapl2.hpp"
 #include "QuICC/SparseSM/Worland/Id.hpp"
+#include "DenseSM/Worland/Id.hpp"
+#include "DenseSM/Worland/SLapl.hpp"
 
 namespace QuICC {
 
@@ -176,206 +173,7 @@ details::BlockDefinition ModelBackend::implicitBlockBuilder(
    const Resolution& res, const std::vector<MHDFloat>& eigs, const BcMap& bcs,
    const NonDimensional::NdMap& nds, const bool isSplitOperator) const
 {
-   details::BlockDefinition blkDef;
-   blkDef.rowId = rowId;
-   blkDef.colId = colId;
-   blkDef.isComplex = this->isComplex(rowId);
-   blkDef.isGalerkin = this->useGalerkin();
-
-   // Create description with common options
-   auto getDescription = [&]() -> details::BlockDescription&
-   {
-      blkDef.descr.push_back({});
-      auto& d = blkDef.descr.back();
-      auto opts = std::make_shared<implDetails::BlockOptionsImpl>();
-      opts->a = Polynomial::Worland::worland_default_t::ALPHA;
-      opts->b = Polynomial::Worland::worland_default_t::DBETA;
-      opts->l = eigs.at(0);
-      opts->bcId = bcs.find(colId.first)->second;
-      opts->truncateQI = this->mcTruncateQI;
-      opts->isSplitOperator = isSplitOperator;
-      opts->useSplitEquation = this->useSplitEquation();
-      d.opts = opts;
-
-      return d;
-   };
-
-   if (rowId == vel_tor &&
-       rowId == colId)
-   {
-      // Real part of operator
-      auto realOp = [](const int nNr, const int nNc, const int l,
-                       std::shared_ptr<details::BlockOptions> opts,
-                       const NonDimensional::NdMap& nds)
-      {
-         SparseMatrix bMat(nNr, nNc);
-
-         if (l > 0)
-         {
-            auto& o =
-               *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-            const auto Pm =
-               nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = Pm * i2lapl.mat();
-         }
-
-         return bMat;
-      };
-
-      // Create block diagonal operator
-      auto& d = getDescription();
-      d.nRowShift = 0;
-      d.nColShift = 0;
-      d.realOp = realOp;
-      d.imagOp = nullptr;
-   }
-   else if (rowId == vel_pol &&
-            rowId == colId)
-   {
-      // Real part of block
-      auto realOp = [](const int nNr, const int nNc, const int l,
-                       std::shared_ptr<details::BlockOptions> opts,
-                       const NonDimensional::NdMap& nds)
-      {
-         SparseMatrix bMat(nNr, nNc);
-
-         if (l > 0)
-         {
-            auto& o =
-               *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-
-            const auto Pm =
-               nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
-
-            if (o.useSplitEquation)
-            {
-               if (o.isSplitOperator)
-               {
-                  SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-                     1 * o.truncateQI);
-                  bMat = i2lapl.mat();
-               }
-               else
-               {
-                  SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-                     1 * o.truncateQI);
-                  bMat = Pm * i2lapl.mat();
-               }
-            }
-            else
-            {
-               SparseSM::Worland::I4Lapl2 i4lapl2(nNr, nNc, o.a, o.b, l,
-                  2 * o.truncateQI);
-               bMat = Pm * i4lapl2.mat();
-            }
-         }
-
-         return bMat;
-      };
-
-      // Create diagonal block
-      auto& d = getDescription();
-      d.nRowShift = 0;
-      d.nColShift = 0;
-      d.realOp = realOp;
-      d.imagOp = nullptr;
-   }
-   else if (rowId == mag_tor &&
-            rowId == colId)
-   {
-      // Real part of operator
-      auto realOp = [](const int nNr, const int nNc, const int l,
-                       std::shared_ptr<details::BlockOptions> opts,
-                       const NonDimensional::NdMap& nds)
-      {
-         SparseMatrix bMat(nNr, nNc);
-
-         if (l > 0)
-         {
-            auto& o =
-               *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = i2lapl.mat();
-         }
-
-         return bMat;
-      };
-
-      // Create block diagonal operator
-      auto& d = getDescription();
-      d.nRowShift = 0;
-      d.nColShift = 0;
-      d.realOp = realOp;
-      d.imagOp = nullptr;
-   }
-   else if (rowId == mag_pol &&
-            rowId == colId)
-   {
-      // Real part of operator
-      auto realOp = [](const int nNr, const int nNc, const int l,
-                       std::shared_ptr<details::BlockOptions> opts,
-                       const NonDimensional::NdMap& nds)
-      {
-         SparseMatrix bMat(nNr, nNc);
-
-         if (l > 0)
-         {
-            auto& o =
-               *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = i2lapl.mat();
-         }
-
-         return bMat;
-      };
-
-      // Create block diagonal operator
-      auto& d = getDescription();
-      d.nRowShift = 0;
-      d.nColShift = 0;
-      d.realOp = realOp;
-      d.imagOp = nullptr;
-   }
-   else if (rowId == temp &&
-            rowId == colId)
-   {
-      // Creat real part of block
-      auto realOp = [](const int nNr, const int nNc, const int l,
-                       std::shared_ptr<details::BlockOptions> opts,
-                       const NonDimensional::NdMap& nds)
-      {
-         auto& o =
-            *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-
-         const auto Pr =
-            nds.find(NonDimensional::Prandtl::id())->second->value();
-         const auto Pm =
-            nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
-
-         SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-            1 * o.truncateQI);
-         SparseMatrix bMat = (Pm / Pr) * i2lapl.mat();
-
-         return bMat;
-      };
-
-      // Create diagonal block
-      auto& d = getDescription();
-      d.nRowShift = 0;
-      d.nColShift = 0;
-      d.realOp = realOp;
-      d.imagOp = nullptr;
-   }
-   else
-   {
-      throw std::logic_error("Equations are not setup properly");
-   }
-
-   return blkDef;
+   throw std::logic_error("implicitBlock should no be called");
 }
 
 details::BlockDefinition ModelBackend::timeBlockBuilder(
@@ -425,9 +223,9 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = qid.mat() * spasm.spmat();
          }
          else
          {
@@ -462,23 +260,13 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
          {
             if (o.useSplitEquation)
             {
-               SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-                  1 * o.truncateQI);
-               bMat = spasm.mat();
+               throw std::logic_error("Split equation not possible");
             }
             else
             {
-               SparseSM::Worland::I4Lapl spasm(nNr, nNc, o.a, o.b, l,
-                  2 * o.truncateQI);
-
-               // Correct Laplacian for 4th order system according to:
-               // McFadden,Murray,Boisvert,
-               // Elimination of Spurious Eigenvalues in the
-               // Chebyshev Tau Spectral Method,
-               // JCP 91, 228-239 (1990)
-               // We simply drop the last column
-               SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, -1);
-               bMat = spasm.mat() * qid.mat();
+               DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolNoSlipSphEnergyWorland);
+               SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -2);
+               bMat = qid.mat()*spasm.spmat();
             }
          }
          else
@@ -512,9 +300,9 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = qid.mat()*spasm.spmat();
          }
          else
          {
@@ -547,9 +335,9 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolInsulatingSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = qid.mat()*spasm.spmat();
          }
          else
          {
@@ -577,8 +365,9 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
          auto& o =
             *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
 
-         SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l, 1 * o.truncateQI);
-         SparseMatrix bMat = spasm.mat();
+         DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::ScaValueSphEnergyWorland);
+         SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+         SparseMatrix bMat = qid.mat()*spasm.spmat();
 
          return bMat;
       };
@@ -606,7 +395,7 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
    blkDef.rowId = rowId;
    blkDef.colId = colId;
    blkDef.isComplex = this->isComplex(rowId);
-   blkDef.isGalerkin = this->useGalerkin();
+   blkDef.isGalerkin = false;
 
    // Create description with common options
    auto getDescription = [&]() -> details::BlockDescription&
@@ -641,9 +430,8 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
+            bMat = spasm.spmat();
          }
          else
          {
@@ -678,23 +466,12 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
          {
             if (o.useSplitEquation)
             {
-               SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-                  1 * o.truncateQI);
-               if(o.isSplitOperator)
-               {
-                  SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, -2);
-                  bMat = spasm.mat() * qid.mat();
-               }
-               else
-               {
-                  bMat = spasm.mat();
-               }
+               throw std::logic_error("Split equation not possible");
             }
             else
             {
-               SparseSM::Worland::I4 spasm(nNr, nNc, o.a, o.b, l,
-                  2 * o.truncateQI);
-               bMat = spasm.mat();
+               DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolNoSlipSphEnergyNoLaplWorland);
+               bMat = spasm.spmat();
             }
          }
          else
@@ -728,9 +505,8 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
+            bMat = spasm.spmat();
          }
          else
          {
@@ -763,9 +539,8 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
 
          if (l > 0)
          {
-            SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = spasm.mat();
+            DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolInsulatingSphEnergyWorland);
+            bMat = spasm.spmat();
          }
          else
          {
@@ -793,8 +568,8 @@ details::BlockDefinition ModelBackend::qiBlockBuilder(
          auto& o =
             *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
 
-         SparseSM::Worland::I2 spasm(nNr, nNc, o.a, o.b, l, 1 * o.truncateQI);
-         SparseMatrix bMat = spasm.mat();
+         DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::ScaValueSphEnergyWorland);
+         SparseMatrix bMat = spasm.spmat();
 
          return bMat;
       };
@@ -855,11 +630,13 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
          {
             auto& o =
                *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
+
             const auto Pm =
                nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = Pm * i2lapl.mat();
+
+            DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::TorValueSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = Pm * qid.mat() * diff.spmat();
          }
 
          return bMat;
@@ -888,9 +665,9 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
             const auto Pm =
                nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
-            SparseSM::Worland::I4Lapl2 i4lapl2(nNr, nNc, o.a, o.b, l,
-                 2 * o.truncateQI);
-            bMat = Pm * i4lapl2.mat();
+            DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::PolNoSlipSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -2);
+            bMat = Pm * qid.mat() * diff.spmat();
          }
 
          return bMat;
@@ -916,9 +693,10 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
          {
             auto& o =
                *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = i2lapl.mat();
+
+            DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::TorValueSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = qid.mat() * diff.spmat();
          }
 
          return bMat;
@@ -944,9 +722,10 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
          {
             auto& o =
                *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
-            SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-               1 * o.truncateQI);
-            bMat = i2lapl.mat();
+
+            DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::PolInsulatingSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+            bMat = qid.mat() * diff.spmat();
          }
 
          return bMat;
@@ -974,9 +753,9 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
          const auto Pm =
             nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
-         SparseSM::Worland::I2Lapl i2lapl(nNr, nNc, o.a, o.b, l,
-            1 * o.truncateQI);
-         SparseMatrix bMat = (Pm / Pr) * i2lapl.mat();
+         DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::ScaValueSphEnergyWorland);
+            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
+         SparseMatrix bMat = (Pm / Pr) * qid.mat() * diff.spmat();
 
          return bMat;
       };

@@ -62,9 +62,10 @@ void TransportJacobianKernel::setVector(std::size_t name,
    this->setField(name, spField);
 }
 
-void TransportJacobianKernel::init(const MHDFloat transport)
+void TransportJacobianKernel::init(const MHDFloat transport, const MHDFloat background)
 {
    this->mTransport= transport;
+   this->mBackground = background;
 }
 
 void TransportJacobianKernel::setMesh(std::shared_ptr<std::vector<Array>> spMesh)
@@ -96,7 +97,7 @@ void TransportJacobianKernel::compute(Framework::Selector::PhysicalScalarField& 
             FieldComponents::Physical::THETA,
             FieldComponents::Physical::PHI>::add(rNLComp, jv->dom(0).res(),
             this->mRadius, jv->dom(0).phys(), t->dom(0).grad(),
-            this->mTransport);
+            this->mTransport, this->mBackground);
       },
       this->vector(this->mVName), this->vector(this->mJVName), this->scalar(this->mSName), this->scalar(this->mJSName));
 }
