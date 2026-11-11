@@ -126,134 +126,7 @@ void IExponentialBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& row
    const BcMap& bcs, const NonDimensional::NdMap& nds,
    const bool isSplitOperator) const
 {
-   auto a = Polynomial::Worland::worland_default_t::ALPHA;
-   auto b = Polynomial::Worland::worland_default_t::DBETA;
-
-   auto bcId = bcs.find(rowId.first)->second;
-
-   SparseSM::Worland::Boundary::Operator bcOp(nN, nN, a, b, l);
-
-   if ((rowId == vel_tor || rowId == jvel_tor) &&
-       rowId == colId)
-   {
-      if (l > 0)
-      {
-         if (bcId == Bc::Name::NoSlip::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-         }
-         else if (bcId == Bc::Name::StressFree::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::R1D1DivR1>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Velocity Toroidal "
-                                   "component not implemented");
-         }
-      }
-   }
-   else if ((rowId == vel_pol || rowId == jvel_pol) &&
-            rowId == colId)
-   {
-      if (l > 0)
-      {
-         if (this->useSplitEquation())
-         {
-            if (isSplitOperator)
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-            }
-            else if (bcId == Bc::Name::NoSlip::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::D1>();
-            }
-            else if (bcId == Bc::Name::StressFree::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::D2>();
-            }
-            else
-            {
-               throw std::logic_error("Boundary conditions for Velocity "
-                                      "Poloidal component not implemented");
-            }
-         }
-         else
-         {
-            if (bcId == Bc::Name::NoSlip::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-               bcOp.addRow<SparseSM::Worland::Boundary::D1>();
-            }
-            else if (bcId == Bc::Name::StressFree::id())
-            {
-               bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-               bcOp.addRow<SparseSM::Worland::Boundary::D2>();
-            }
-            else
-            {
-               throw std::logic_error("Boundary conditions for Velocity "
-                                      "Poloidal component not implemented");
-            }
-         }
-      }
-   }
-   else if ((rowId == mag_tor || rowId == jmag_tor) &&
-            rowId == colId)
-   {
-      if (l > 0)
-      {
-         if (bcId == Bc::Name::Insulating::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Magnetic Toroidal "
-                                   "component not implemented");
-         }
-      }
-   }
-   else if ((rowId == mag_pol || rowId == jmag_pol) &&
-            rowId == colId)
-   {
-      if (l > 0)
-      {
-         if (bcId == Bc::Name::Insulating::id())
-         {
-            bcOp.addRow<SparseSM::Worland::Boundary::InsulatingSphere>();
-         }
-         else
-         {
-            throw std::logic_error("Boundary conditions for Magnetic Poloidal "
-                                   "component not implemented");
-         }
-      }
-   }
-   else if ((rowId == temp || rowId == jtemp) &&
-            rowId == colId)
-   {
-      if (bcId == Bc::Name::FixedTemperature::id())
-      {
-         bcOp.addRow<SparseSM::Worland::Boundary::Value>();
-      }
-      else if (bcId == Bc::Name::FixedFlux::id())
-      {
-         bcOp.addRow<SparseSM::Worland::Boundary::D1>();
-      }
-      else
-      {
-         throw std::logic_error(
-            "Boundary conditions for Temperature not implemented (" +
-            std::to_string(bcId) + ")");
-      }
-   }
-   else
-   {
-      throw std::logic_error("Unknown field for boundary conditions");
-   }
-
-   mat.real() += bcOp.mat();
+   throw std::logic_error("Exponential setup only works with Galerkin setup");
 }
 
 void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
@@ -397,6 +270,24 @@ void IExponentialBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fiel
       SparseSM::Worland::Id qId(nN - s, nN, a, b, l);
       mat = qId.mat() * mat;
    }
+}
+
+void IExponentialBackend::applyGalerkinStencil(SparseMatrix& mat,
+   const SpectralFieldId& rowId, const SpectralFieldId& colId, const int lr,
+   const int lc, std::shared_ptr<details::BlockOptions> opts,
+   const int nNr, const int nNc, const BcMap& bcs,
+   const NonDimensional::NdMap& nds) const
+{
+   auto a = Polynomial::Worland::worland_default_t::ALPHA;
+   auto b = Polynomial::Worland::worland_default_t::DBETA;
+
+   auto S = mat;
+   this->stencil(S, colId, lc, nNc, false, bcs, nds);
+
+   auto s = this->nBc(rowId);
+   // No QI, do not shift data
+   SparseSM::Worland::Id qId(nNr - s, nNr, a, b, lr);
+   mat = qId.mat() * (mat * S);
 }
 
 } // namespace Exponential

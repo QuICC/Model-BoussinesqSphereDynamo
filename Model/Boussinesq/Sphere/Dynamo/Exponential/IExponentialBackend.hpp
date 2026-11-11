@@ -92,6 +92,25 @@ protected:
       const int nN, const bool makeSquare, const BcMap& bcs,
       const NonDimensional::NdMap& nds) const override;
 
+   /**
+    * @brief Apply galerkin stencil for boundary condition
+    *
+    * @param mat     Input/Output matrix to apply stencil to
+    * @param rowId   ID of field of equation
+    * @param colId   ID of field
+    * @param lr      Row space harmonic degree
+    * @param lc      Column space harmonic degree
+    * @param opts    Options
+    * @param nNr     1D dimension
+    * @param nNc     1D dimension
+    * @param bcs     Boundary conditions
+    * @param nds     Nondimensional parameters
+    */
+   void applyGalerkinStencil(SparseMatrix& decMat, const SpectralFieldId& rowId,
+      const SpectralFieldId& colId, const int lr, const int lc,
+      std::shared_ptr<details::BlockOptions> opts, const int nNr, const int nNc,
+      const BcMap& bcs, const NonDimensional::NdMap& nds) const override;
+
 private:
 };
 

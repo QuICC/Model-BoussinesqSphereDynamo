@@ -224,8 +224,7 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
          if (l > 0)
          {
             DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = qid.mat() * spasm.spmat();
+            bMat = spasm.spmat();
          }
          else
          {
@@ -265,8 +264,7 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
             else
             {
                DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolNoSlipSphEnergyWorland);
-               SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -2);
-               bMat = qid.mat()*spasm.spmat();
+               bMat = spasm.spmat();
             }
          }
          else
@@ -301,8 +299,7 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
          if (l > 0)
          {
             DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::TorValueSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = qid.mat()*spasm.spmat();
+            bMat = spasm.spmat();
          }
          else
          {
@@ -336,8 +333,7 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
          if (l > 0)
          {
             DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::PolInsulatingSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = qid.mat()*spasm.spmat();
+            bMat = spasm.spmat();
          }
          else
          {
@@ -366,8 +362,7 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
             *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
 
          DenseSM::Worland::Id spasm(nNr, nNc, o.a, o.b, l, DenseSM::Worland::Id::OrthoId::ScaValueSphEnergyWorland);
-         SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-         SparseMatrix bMat = qid.mat()*spasm.spmat();
+         SparseMatrix bMat = spasm.spmat();
 
          return bMat;
       };
