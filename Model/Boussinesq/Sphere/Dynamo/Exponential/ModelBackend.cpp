@@ -635,8 +635,7 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
                nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::TorValueSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = Pm * qid.mat() * diff.spmat();
+            bMat = Pm * diff.spmat();
          }
 
          return bMat;
@@ -666,8 +665,7 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
                nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
             DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::PolNoSlipSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -2);
-            bMat = Pm * qid.mat() * diff.spmat();
+            bMat = Pm * diff.spmat();
          }
 
          return bMat;
@@ -695,8 +693,7 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
                *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
 
             DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::TorValueSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = qid.mat() * diff.spmat();
+            bMat = diff.spmat();
          }
 
          return bMat;
@@ -724,8 +721,7 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
                *std::dynamic_pointer_cast<implDetails::BlockOptionsImpl>(opts);
 
             DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::PolInsulatingSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-            bMat = qid.mat() * diff.spmat();
+            bMat = diff.spmat();
          }
 
          return bMat;
@@ -754,8 +750,7 @@ details::BlockDefinition ModelBackend::explicitLinearBlockBuilder(
             nds.find(NonDimensional::MagneticPrandtl::id())->second->value();
 
          DenseSM::Worland::SLapl diff(nNr, nNc, o.a, o.b, l, DenseSM::Worland::SLapl::OrthoId::ScaValueSphEnergyWorland);
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, 0, -1);
-         SparseMatrix bMat = (Pm / Pr) * qid.mat() * diff.spmat();
+         SparseMatrix bMat = (Pm / Pr) * diff.spmat();
 
          return bMat;
       };
