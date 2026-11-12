@@ -4,28 +4,19 @@
  * Boussinesq thermal convection dynamo in a sphere model
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Induction.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/InductionKernel.hpp"
 #include "QuICC/PhysicalNames/Magnetic.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
 #include "QuICC/SpatialScheme/ISpatialScheme.hpp"
-#include "QuICC/Transform/Path/I2CurlCurlNl.hpp"
-#include "QuICC/Transform/Path/I2CurlNl.hpp"
+#include "QuICC/Transform/Path/CurlCurlNl.hpp"
+#include "QuICC/Transform/Path/CurlNl.hpp"
 
 namespace QuICC {
 
@@ -39,14 +30,13 @@ namespace Dynamo {
 
 Induction::Induction(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
-   std::shared_ptr<Model::IModelBackend> spBackend) :
-    IVectorEquation(spEqParams, spScheme, spBackend)
+   std::shared_ptr<Model::IModelBackend> spBackend,
+   std::shared_ptr<EquationOptions> spOptions) :
+    IVectorEquation(spEqParams, spScheme, spBackend, spOptions)
 {
    // Set the variable requirements
    this->setRequirements();
 }
-
-Induction::~Induction() {}
 
 void Induction::setCoupling()
 {
@@ -78,10 +68,10 @@ void Induction::setCoupling()
 void Induction::setNLComponents()
 {
    this->addNLComponent(FieldComponents::Spectral::POL,
-      Transform::Path::I2CurlNl::id());
+      Transform::Path::CurlNl::id());
 
    this->addNLComponent(FieldComponents::Spectral::TOR,
-      Transform::Path::I2CurlCurlNl::id());
+      Transform::Path::CurlCurlNl::id());
 }
 
 void Induction::initNLKernel(const bool force)
@@ -94,7 +84,12 @@ void Induction::initNLKernel(const bool force)
       spNLKernel->setMagnetic(this->name(), this->spUnknown());
       spNLKernel->setVelocity(PhysicalNames::Velocity::id(),
          this->spVector(PhysicalNames::Velocity::id()));
-      spNLKernel->init(1.0);
+      MHDFloat sgn = 1;
+      if(!this->options().nonlinearIsLhs)
+      {
+         sgn = -1;
+      }
+      spNLKernel->init(1.0 * sgn);
       this->mspNLKernel = spNLKernel;
    }
 }

@@ -7,15 +7,9 @@
 #ifndef QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
 #define QUICC_MODEL_BOUSSINESQ_SPHERE_DYNAMO_TRANSPORT_HPP
 
-// Configuration includes
-//
-
 // System includes
 //
 #include <memory>
-
-// External includes
-//
 
 // Project includes
 //
@@ -45,12 +39,13 @@ public:
     */
    Transport(SharedEquationParameters spEqParams,
       SpatialScheme::SharedCISpatialScheme spScheme,
-      std::shared_ptr<Model::IModelBackend> spBackend);
+      std::shared_ptr<Model::IModelBackend> spBackend,
+      std::shared_ptr<EquationOptions> spOptions);
 
    /**
     * @brief Simple empty destructor
     */
-   virtual ~Transport();
+   virtual ~Transport() = default;
 
    /**
     * @brief Initialize nonlinear interaction kernel

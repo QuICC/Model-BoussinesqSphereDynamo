@@ -1,0 +1,217 @@
+/**
+ * @file MomentumJacobian.cpp
+ * @brief Source of the implementation of the vector Navier-Stokes equation in
+ * the Boussinesq thermal convection dynamo in a sphere model
+ */
+
+// System includes
+//
+
+// Project includes
+//
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/MomentumJacobian.hpp"
+#include "Model/Boussinesq/Sphere/Dynamo/Exponential/MomentumJacobianKernel.hpp"
+#include "QuICC/Bc/Name/StressFree.hpp"
+#include "QuICC/NonDimensional/Ekman.hpp"
+#include "QuICC/NonDimensional/MagneticPrandtl.hpp"
+#include "QuICC/NonDimensional/Prandtl.hpp"
+#include "QuICC/NonDimensional/Rayleigh.hpp"
+#include "QuICC/PhysicalNames/JacobianMagnetic.hpp"
+#include "QuICC/PhysicalNames/JacobianTemperature.hpp"
+#include "QuICC/PhysicalNames/JacobianVelocity.hpp"
+#include "QuICC/PhysicalNames/Magnetic.hpp"
+#include "QuICC/PhysicalNames/Temperature.hpp"
+#include "QuICC/PhysicalNames/Velocity.hpp"
+#include "QuICC/SolveTiming/Prognostic.hpp"
+#include "QuICC/SpatialScheme/ISpatialScheme.hpp"
+#include "QuICC/SpectralKernels/Sphere/ConserveAngularMomentum.hpp"
+#include "QuICC/Transform/Path/CurlNl.hpp"
+#include "QuICC/Transform/Path/NegCurlCurlNl.hpp"
+
+namespace QuICC {
+
+namespace Equations {
+
+namespace Boussinesq {
+
+namespace Sphere {
+
+namespace Dynamo {
+
+namespace Exponential {
+
+MomentumJacobian::MomentumJacobian(SharedEquationParameters spEqParams,
+   SpatialScheme::SharedCISpatialScheme spScheme,
+   std::shared_ptr<Model::IModelBackend> spBackend,
+   std::shared_ptr<EquationOptions> spOptions) :
+    IVectorEquation(spEqParams, spScheme, spBackend, spOptions)
+{
+   // Set the variable requirements
+   this->setRequirements();
+}
+
+void MomentumJacobian::setCoupling()
+{
+   int start;
+   if (this->ss().has(SpatialScheme::Feature::SpectralOrdering132))
+   {
+      start = 1;
+   }
+   else if (this->ss().has(SpatialScheme::Feature::SpectralOrdering123))
+   {
+      start = 0;
+   }
+   else
+   {
+      throw std::logic_error(
+         "Unknown spatial scheme was used to setup equations!");
+   }
+
+   auto features = defaultCouplingFeature();
+   features.at(CouplingFeature::Nonlinear) = true;
+
+   this->defineCoupling(FieldComponents::Spectral::TOR,
+      CouplingInformation::PROGNOSTIC, start, features);
+
+   this->defineCoupling(FieldComponents::Spectral::POL,
+      CouplingInformation::PROGNOSTIC, start, features);
+}
+
+void MomentumJacobian::setNLComponents()
+{
+   if(this->options().transformHasQi)
+   {
+      throw std::logic_error("Equation not setup with QI in transform stage");
+   }
+   else
+   {
+      this->addNLComponent(FieldComponents::Spectral::TOR,
+         Transform::Path::CurlNl::id());
+
+      this->addNLComponent(FieldComponents::Spectral::POL,
+            Transform::Path::NegCurlCurlNl::id());
+   }
+}
+
+void MomentumJacobian::initNLKernel(const bool force)
+{
+   // Initialize if empty or forced
+   if (force || !this->mspNLKernel)
+   {
+      // Initialize the physical kernel
+      MHDFloat T = 1.0 / this->eqParams().nd(NonDimensional::Ekman::id());
+      MHDFloat Ra = this->eqParams().nd(NonDimensional::Rayleigh::id());
+      MHDFloat Pr = this->eqParams().nd(NonDimensional::Prandtl::id());
+      MHDFloat Pm = this->eqParams().nd(NonDimensional::MagneticPrandtl::id());
+      auto spNLKernel = std::make_shared<Physical::Kernel::MomentumJacobianKernel>();
+      spNLKernel->setJacobianVelocity(this->name(), this->spUnknown());
+      spNLKernel->setVelocity(PhysicalNames::Velocity::id(), this->spVector(PhysicalNames::Velocity::id()));
+      spNLKernel->setJacobianTemperature(PhysicalNames::JacobianTemperature::id(),
+         this->spScalar(PhysicalNames::JacobianTemperature::id()));
+      spNLKernel->setTemperature(PhysicalNames::Temperature::id(),
+         this->spScalar(PhysicalNames::Temperature::id()));
+      spNLKernel->setJacobianMagnetic(PhysicalNames::JacobianMagnetic::id(),
+         this->spVector(PhysicalNames::JacobianMagnetic::id()));
+      spNLKernel->setMagnetic(PhysicalNames::Magnetic::id(),
+         this->spVector(PhysicalNames::Magnetic::id()));
+      MHDFloat sgn = 1;
+      if(!this->options().nonlinearIsLhs)
+      {
+         sgn = -1;
+      }
+      spNLKernel->init(1.0 * sgn, T * Pm * sgn, Pm * Pm * Ra * T / Pr * sgn, T * Pm * sgn);
+      this->mspNLKernel = spNLKernel;
+   }
+}
+
+void MomentumJacobian::initConstraintKernel(const std::shared_ptr<std::vector<Array>>)
+{
+   if (this->bcIds().bcId(this->name()) == Bc::Name::StressFree::id())
+   {
+      // Initialize the physical kernel
+      auto spConstraint =
+         std::make_shared<Spectral::Kernel::Sphere::ConserveAngularMomentum>(
+            this->ss().has(SpatialScheme::Feature::ComplexSpectrum));
+      spConstraint->setField(this->name(), this->spUnknown());
+      spConstraint->setResolution(this->spRes());
+      spConstraint->init(
+         this->ss().has(SpatialScheme::Feature::SpectralOrdering123));
+      this->setConstraintKernel(FieldComponents::Spectral::TOR, spConstraint);
+   }
+}
+
+void MomentumJacobian::setRequirements()
+{
+   // Set velocity as equation unknown
+   this->setName(PhysicalNames::JacobianVelocity::id());
+
+   // Set solver timing
+   this->setSolveTiming(SolveTiming::Prognostic::id());
+
+   // Forward transform generates nonlinear RHS
+   this->setForwardPathsType(FWD_IS_NONLINEAR);
+
+   // Get reference to spatial scheme
+   const auto& ss = this->ss();
+
+   // Add velocity to requirements: is scalar?
+   auto& jvelReq = this->mRequirements.addField(PhysicalNames::JacobianVelocity::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jvelReq.enableSpectral();
+   jvelReq.enablePhysical();
+   jvelReq.enableCurl();
+
+   // Add velocity to requirements: is scalar?
+   auto& velReq = this->mRequirements.addField(PhysicalNames::Velocity::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   velReq.enableSpectral();
+   velReq.enablePhysical();
+   velReq.enableCurl();
+
+   // Add temperature to requirements: is scalar?
+   auto& jtempReq =
+      this->mRequirements.addField(PhysicalNames::JacobianTemperature::id(),
+         FieldRequirement(true, ss.spectral(), ss.physical()));
+   jtempReq.enableSpectral();
+   jtempReq.enablePhysical();
+
+   // Add temperature to requirements: is scalar?
+   auto& tempReq =
+      this->mRequirements.addField(PhysicalNames::Temperature::id(),
+         FieldRequirement(true, ss.spectral(), ss.physical()));
+   tempReq.enableSpectral();
+   tempReq.enablePhysical();
+
+   // Add magnetic to requirements: is scalar?
+   auto& jmagReq = this->mRequirements.addField(PhysicalNames::JacobianMagnetic::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   jmagReq.enableSpectral();
+   jmagReq.enablePhysical();
+   jmagReq.enableCurl();
+
+   // Add magnetic to requirements: is scalar?
+   auto& magReq = this->mRequirements.addField(PhysicalNames::Magnetic::id(),
+      FieldRequirement(false, ss.spectral(), ss.physical()));
+   magReq.enableSpectral();
+   magReq.enablePhysical();
+   magReq.enableCurl();
+   assert(
+      this->mRequirements.field(PhysicalNames::Velocity::id()).needSpectral());
+   assert(
+      this->mRequirements.field(PhysicalNames::Velocity::id()).needPhysical());
+   assert(this->mRequirements.field(PhysicalNames::Velocity::id())
+             .needPhysicalCurl());
+   assert(
+      this->mRequirements.field(PhysicalNames::Magnetic::id()).needSpectral());
+   assert(
+      this->mRequirements.field(PhysicalNames::Magnetic::id()).needPhysical());
+   assert(this->mRequirements.field(PhysicalNames::Magnetic::id())
+             .needPhysicalCurl());
+}
+
+} // namespace Exponential
+} // namespace Dynamo
+} // namespace Sphere
+} // namespace Boussinesq
+} // namespace Equations
+} // namespace QuICC

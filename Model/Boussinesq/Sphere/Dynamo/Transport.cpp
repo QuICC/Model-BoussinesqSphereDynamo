@@ -4,26 +4,17 @@
  * Boussinesq thermal convection dynamo in a sphere
  */
 
-// Configuration includes
-//
-
 // System includes
 //
 
-// External includes
-//
-
-// Class include
-//
-#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
-
 // Project includes
 //
+#include "Model/Boussinesq/Sphere/Dynamo/Transport.hpp"
 #include "Model/Boussinesq/Sphere/Dynamo/TransportKernel.hpp"
 #include "QuICC/PhysicalNames/Temperature.hpp"
 #include "QuICC/PhysicalNames/Velocity.hpp"
 #include "QuICC/SolveTiming/Prognostic.hpp"
-#include "QuICC/Transform/Path/I2ScalarNl.hpp"
+#include "QuICC/Transform/Path/ScalarNl.hpp"
 
 namespace QuICC {
 
@@ -37,14 +28,13 @@ namespace Dynamo {
 
 Transport::Transport(SharedEquationParameters spEqParams,
    SpatialScheme::SharedCISpatialScheme spScheme,
-   std::shared_ptr<Model::IModelBackend> spBackend) :
-    IScalarEquation(spEqParams, spScheme, spBackend)
+   std::shared_ptr<Model::IModelBackend> spBackend,
+   std::shared_ptr<EquationOptions> spOptions) :
+    IScalarEquation(spEqParams, spScheme, spBackend, spOptions)
 {
    // Set the variable requirements
    this->setRequirements();
 }
-
-Transport::~Transport() {}
 
 void Transport::setCoupling()
 {
@@ -58,7 +48,7 @@ void Transport::setCoupling()
 void Transport::setNLComponents()
 {
    this->addNLComponent(FieldComponents::Spectral::SCALAR,
-      Transform::Path::I2ScalarNl::id());
+      Transform::Path::ScalarNl::id());
 }
 
 void Transport::initNLKernel(const bool force)
@@ -71,7 +61,12 @@ void Transport::initNLKernel(const bool force)
       spNLKernel->setScalar(this->name(), this->spUnknown());
       spNLKernel->setVector(PhysicalNames::Velocity::id(),
          this->spVector(PhysicalNames::Velocity::id()));
-      spNLKernel->init(1.0);
+      MHDFloat sgn = 1;
+      if(!this->options().nonlinearIsLhs)
+      {
+         sgn = -1;
+      }
+      spNLKernel->init(1.0 * sgn, 1.0 * sgn);
       this->mspNLKernel = spNLKernel;
    }
 }
