@@ -15,20 +15,8 @@
 #include "QuICC/Bc/Name/Insulating.hpp"
 #include "QuICC/Bc/Name/NoSlip.hpp"
 #include "QuICC/Bc/Name/StressFree.hpp"
+#include "QuICC/Bc/Name/QuasiInverseOnly.hpp"
 #include "QuICC/Enums/FieldIds.hpp"
-#include "QuICC/ModelOperator/Boundary.hpp"
-#include "QuICC/ModelOperator/ExplicitLinear.hpp"
-#include "QuICC/ModelOperator/ExplicitNextstep.hpp"
-#include "QuICC/ModelOperator/ExplicitNonlinear.hpp"
-#include "QuICC/ModelOperator/ImplicitLinear.hpp"
-#include "QuICC/ModelOperator/SplitBoundary.hpp"
-#include "QuICC/ModelOperator/SplitImplicitLinear.hpp"
-#include "QuICC/ModelOperator/Stencil.hpp"
-#include "QuICC/ModelOperator/Time.hpp"
-#include "QuICC/ModelOperatorBoundary/FieldToRhs.hpp"
-#include "QuICC/ModelOperatorBoundary/SolverHasBc.hpp"
-#include "QuICC/ModelOperatorBoundary/SolverNoTau.hpp"
-#include "QuICC/ModelOperatorBoundary/Stencil.hpp"
 #include "QuICC/NonDimensional/CflAlfvenDamping.hpp"
 #include "QuICC/NonDimensional/CflAlfvenScale.hpp"
 #include "QuICC/NonDimensional/CflInertial.hpp"
@@ -137,14 +125,19 @@ int IDynamoBackend::nBc(const SpectralFieldId& fId) const
    return nBc;
 }
 
+int IDynamoBackend::baseNn(const int l, const Resolution& res) const
+{
+   int nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
+
+   return nN;
+}
+
 void IDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
    const SpectralFieldId& colId, const int l,
-   std::shared_ptr<details::BlockOptions> opts, const Resolution& res,
+   std::shared_ptr<details::BlockOptions> opts, const int nN,
    const BcMap& bcs, const NonDimensional::NdMap& nds,
    const bool isSplitOperator) const
 {
-   auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
-
    auto a = Polynomial::Worland::worland_default_t::ALPHA;
    auto b = Polynomial::Worland::worland_default_t::DBETA;
 
@@ -277,100 +270,106 @@ void IDynamoBackend::applyTau(SparseMatrix& mat, const SpectralFieldId& rowId,
 }
 
 void IDynamoBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
-   const int l, const Resolution& res, const bool makeSquare, const BcMap& bcs,
+   const int l, const int nN, const bool makeSquare, const BcMap& bcs,
    const NonDimensional::NdMap& nds) const
 {
-   auto nN = res.counter().dimensions(Dimensions::Space::SPECTRAL, l)(0);
-
    auto a = Polynomial::Worland::worland_default_t::ALPHA;
    auto b = Polynomial::Worland::worland_default_t::DBETA;
 
    auto bcId = bcs.find(fieldId.first)->second;
 
    int s = this->nBc(fieldId);
-   if (fieldId == std::make_pair(PhysicalNames::Velocity::id(),
-                     FieldComponents::Spectral::TOR))
+   if(bcId == Bc::Name::QuasiInverseOnly::id())
    {
-      if (bcId == Bc::Name::NoSlip::id())
-      {
-         SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
-      }
-      else if (bcId == Bc::Name::StressFree::id())
-      {
-         SparseSM::Worland::Stencil::R1D1DivR1 bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
-      }
-      else
-      {
-         throw std::logic_error("Galerkin boundary conditions for Velocity "
-                                "Toroidal component not implemented");
-      }
+      SparseSM::Worland::Id qid(nN, nN - s, a, b, l);
+      mat = qid.mat();
    }
-   else if (fieldId == std::make_pair(PhysicalNames::Velocity::id(),
-                          FieldComponents::Spectral::POL))
+   else
    {
-      if (bcId == Bc::Name::NoSlip::id())
+      if (fieldId == std::make_pair(PhysicalNames::Velocity::id(),
+                        FieldComponents::Spectral::TOR))
       {
-         SparseSM::Worland::Stencil::ValueD1 bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
+         if (bcId == Bc::Name::NoSlip::id())
+         {
+            SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else if (bcId == Bc::Name::StressFree::id())
+         {
+            SparseSM::Worland::Stencil::R1D1DivR1 bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else
+         {
+            throw std::logic_error("Galerkin boundary conditions for Velocity "
+                                   "Toroidal component not implemented");
+         }
       }
-      else if (bcId == Bc::Name::StressFree::id())
+      else if (fieldId == std::make_pair(PhysicalNames::Velocity::id(),
+                             FieldComponents::Spectral::POL))
       {
-         SparseSM::Worland::Stencil::ValueD2 bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
+         if (bcId == Bc::Name::NoSlip::id())
+         {
+            SparseSM::Worland::Stencil::ValueD1 bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else if (bcId == Bc::Name::StressFree::id())
+         {
+            SparseSM::Worland::Stencil::ValueD2 bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else
+         {
+            throw std::logic_error("Galerin boundary conditions for Velocity "
+                                   "Poloidal component not implemented");
+         }
       }
-      else
+      else if (fieldId == std::make_pair(PhysicalNames::Magnetic::id(),
+                             FieldComponents::Spectral::TOR))
       {
-         throw std::logic_error("Galerin boundary conditions for Velocity "
-                                "Poloidal component not implemented");
+         if (bcId == Bc::Name::Insulating::id())
+         {
+            SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else
+         {
+            throw std::logic_error("Galerkin boundary conditions for Magnetic "
+                                   "Toroidal component not implemented");
+         }
       }
-   }
-   else if (fieldId == std::make_pair(PhysicalNames::Magnetic::id(),
-                          FieldComponents::Spectral::TOR))
-   {
-      if (bcId == Bc::Name::Insulating::id())
+      else if (fieldId == std::make_pair(PhysicalNames::Magnetic::id(),
+                             FieldComponents::Spectral::POL))
       {
-         SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
+         if (bcId == Bc::Name::Insulating::id())
+         {
+            SparseSM::Worland::Stencil::InsulatingSphere bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else
+         {
+            throw std::logic_error("Galerin boundary conditions for Magnetic "
+                                   "Poloidal component not implemented");
+         }
       }
-      else
+      else if (fieldId == std::make_pair(PhysicalNames::Temperature::id(),
+                             FieldComponents::Spectral::SCALAR))
       {
-         throw std::logic_error("Galerkin boundary conditions for Magnetic "
-                                "Toroidal component not implemented");
-      }
-   }
-   else if (fieldId == std::make_pair(PhysicalNames::Magnetic::id(),
-                          FieldComponents::Spectral::POL))
-   {
-      if (bcId == Bc::Name::Insulating::id())
-      {
-         SparseSM::Worland::Stencil::InsulatingSphere bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
-      }
-      else
-      {
-         throw std::logic_error("Galerin boundary conditions for Magnetic "
-                                "Poloidal component not implemented");
-      }
-   }
-   else if (fieldId == std::make_pair(PhysicalNames::Temperature::id(),
-                          FieldComponents::Spectral::SCALAR))
-   {
-      if (bcId == Bc::Name::FixedTemperature::id())
-      {
-         SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
-      }
-      else if (bcId == Bc::Name::FixedFlux::id())
-      {
-         SparseSM::Worland::Stencil::D1 bc(nN, nN - s, a, b, l);
-         mat = bc.mat();
-      }
-      else
-      {
-         throw std::logic_error(
-            "Galerkin boundary conditions for Temperature not implemented");
+         if (bcId == Bc::Name::FixedTemperature::id())
+         {
+            SparseSM::Worland::Stencil::Value bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else if (bcId == Bc::Name::FixedFlux::id())
+         {
+            SparseSM::Worland::Stencil::D1 bc(nN, nN - s, a, b, l);
+            mat = bc.mat();
+         }
+         else
+         {
+            throw std::logic_error(
+               "Galerkin boundary conditions for Temperature not implemented");
+         }
       }
    }
 
@@ -384,20 +383,57 @@ void IDynamoBackend::stencil(SparseMatrix& mat, const SpectralFieldId& fieldId,
 void IDynamoBackend::applyGalerkinStencil(SparseMatrix& mat,
    const SpectralFieldId& rowId, const SpectralFieldId& colId, const int lr,
    const int lc, std::shared_ptr<details::BlockOptions> opts,
-   const Resolution& res, const BcMap& bcs,
+   const int nNr, const int nNc, const BcMap& bcs,
    const NonDimensional::NdMap& nds) const
 {
-   auto nNr = res.counter().dimensions(Dimensions::Space::SPECTRAL, lr)(0);
-
    auto a = Polynomial::Worland::worland_default_t::ALPHA;
    auto b = Polynomial::Worland::worland_default_t::DBETA;
 
    auto S = mat;
-   this->stencil(S, colId, lc, res, false, bcs, nds);
+   this->stencil(S, colId, lc, nNc, false, bcs, nds);
 
    auto s = this->nBc(rowId);
    SparseSM::Worland::Id qId(nNr - s, nNr, a, b, lr, 0, s);
    mat = qId.mat() * (mat * S);
+}
+
+void IDynamoBackend::operatorInfo(OperatorInfo& info, const SpectralFieldId& fId,
+   const Resolution& res, const Equations::Tools::ICoupling& coupling,
+   const BcMap& bcs) const
+{
+   // Loop overall matrices/eigs
+   for (int idx = 0; idx < info.tauN.size(); ++idx)
+   {
+      auto eigs = coupling.getIndexes(res, idx);
+
+      int tN, gN, rhs;
+      ArrayI shift(3);
+
+      auto nTauLines = this->nBc(fId);
+      auto nN = this->baseNn(eigs.at(0), res);
+      this->blockInfo(tN, gN, shift, rhs, nTauLines, nN, this->useGalerkin());
+
+      info.tauN(idx) = tN;
+      info.galN(idx) = gN;
+      info.galShift.row(idx) = shift;
+      info.rhsCols(idx) = rhs;
+
+      // Compute system size
+      int sN = 0;
+      for (auto f: this->implicitFields(fId))
+      {
+         nTauLines = this->nBc(f);
+         this->blockInfo(tN, gN, shift, rhs, nTauLines, nN, this->useGalerkin());
+         sN += gN;
+      }
+
+      if (sN == 0)
+      {
+         sN = info.galN(idx);
+      }
+
+      info.sysN(idx) = sN;
+   }
 }
 
 } // namespace Dynamo
