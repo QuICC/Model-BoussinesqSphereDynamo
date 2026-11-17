@@ -6,18 +6,9 @@
 #ifndef QUICC_PHYSICAL_TRANSPORTKERNEL_HPP
 #define QUICC_PHYSICAL_TRANSPORTKERNEL_HPP
 
-// First include
-//
-
-// Configuration includes
-//
-#include <memory>
-
 // System includes
 //
-
-// External includes
-//
+#include <memory>
 
 // Project includes
 //
@@ -38,12 +29,12 @@ public:
    /**
     * @brief Simple constructor
     */
-   explicit TransportKernel();
+   explicit TransportKernel() = default;
 
    /**
     * @brief Simple empty destructor
     */
-   virtual ~TransportKernel();
+   virtual ~TransportKernel() = default;
 
    /**
     * @brief Set the physical mesh on which kernel is working
@@ -71,7 +62,7 @@ public:
    /**
     * @brief Initialize kernel
     */
-   void init(const MHDFloat transport);
+   void init(const MHDFloat transport, const MHDFloat background);
 
    /**
     * @brief Compute the physical kernel
@@ -104,6 +95,11 @@ private:
     * @brief Scaling constant for transport term
     */
    MHDFloat mTransport;
+
+   /**
+    * @brief Scaling constant for transport background term
+    */
+   MHDFloat mBackground;
 
    /**
     * @brief Storage for radial grid values
