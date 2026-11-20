@@ -11,6 +11,7 @@
 //
 #include "Model/Boussinesq/Sphere/Dynamo/Implicit/ModelBackend.hpp"
 #include "QuICC/Bc/Name/QuasiInverseOnly.hpp"
+#include "QuICC/Bc/Name/NoSlip.hpp"
 #include "QuICC/Enums/FieldIds.hpp"
 #include "QuICC/Equations/CouplingIndexType.hpp"
 #include "QuICC/ModelOperator/Boundary.hpp"
@@ -698,14 +699,21 @@ details::BlockDefinition ModelBackend::timeBlockBuilder(
             SparseSM::Worland::I4Lapl spasm(nNr, nNc, o.a, o.b, l,
                2 * o.truncateQI);
 
-            // Correct Laplacian for 4th order system according to:
-            // McFadden,Murray,Boisvert,
-            // Elimination of Spurious Eigenvalues in the
-            // Chebyshev Tau Spectral Method,
-            // JCP 91, 228-239 (1990)
-            // We simply drop the last column
-            SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, -1);
-            bMat = spasm.mat() * qid.mat();
+            if(o.bcId == Bc::Name::NoSlip::id())
+            {
+               // Correct Laplacian for 4th order system according to:
+               // McFadden,Murray,Boisvert,
+               // Elimination of Spurious Eigenvalues in the
+               // Chebyshev Tau Spectral Method,
+               // JCP 91, 228-239 (1990)
+               // We simply drop the last column
+               SparseSM::Worland::Id qid(nNr, nNc, o.a, o.b, l, -1);
+               bMat = spasm.mat() * qid.mat();
+            }
+            else
+            {
+               bMat = spasm.mat();
+            }
          }
          else
          {

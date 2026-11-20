@@ -54,7 +54,7 @@ std::string IDynamoModel::version() const
 
 void IDynamoModel::addEquations(SharedSimulation spSim)
 {
-   auto optZero = std::make_shared<Equations::EquationOptions>(0);
+   auto optZero = std::make_shared<Equations::EquationOptions>(0, true, false);
 
    // Add transport equation
    spSim->addEquation<Equations::Boussinesq::Sphere::Dynamo::Transport>(
